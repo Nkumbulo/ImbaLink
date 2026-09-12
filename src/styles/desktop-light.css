@@ -1,0 +1,515 @@
+/*
+ * ImbaLink desktop-light.css
+ * Desktop-only visual layer. Nothing below is applied below 1024px.
+ * Mobile and tablet retain their existing theme.
+ */
+/* Mobile Home: keep the area immediately below the fixed header on the existing theme color.
+   This is intentionally outside the desktop media query so desktop light surfaces are untouched. */
+@media (max-width: 1023px) {
+  /* Mobile Home: the existing theme color continues from beneath the fixed
+     header through the hero/filter area, then stops exactly where listings begin. */
+  .home-page .web-home-content {
+    background: var(--theme-green-deep, #204F3A) !important;
+  }
+
+  .home-page .web-subhero {
+    background: var(--theme-green-deep, #204F3A) !important;
+  }
+
+  .home-page .web-property-grid {
+    background: var(--theme-surface, #FBF8F0) !important;
+  }
+}
+
+
+  /* Mobile Home filter dropdowns: anchor to the corresponding filter button.
+     The toolbar is a five-column grid, so each menu starts on the same
+     horizontal track as its trigger instead of floating from the toolbar edge. */
+  .mobile-only-filter-toolbar {
+    --mobile-filter-gap: 6px;
+  }
+
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown {
+    top: 50px !important;
+    right: auto !important;
+    margin-top: 0 !important;
+    max-width: calc(100vw - 32px);
+  }
+
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-type,
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-beds,
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-price,
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-baths,
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-furnished,
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-amenities {
+    left: 0 !important;
+  }
+
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-beds {
+    left: calc((100% + var(--mobile-filter-gap)) / 5) !important;
+  }
+
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-price {
+    left: calc(2 * (100% + var(--mobile-filter-gap)) / 5) !important;
+  }
+
+  .mobile-only-filter-toolbar > .mobile-filter-dropdown-sort {
+    left: calc(4 * (100% + var(--mobile-filter-gap)) / 5) !important;
+    right: auto !important;
+  }
+
+@media (min-width: 1024px) {
+  :root {
+    --bg-page: #FDF6F0;
+    --bg-sidebar: #FEFCF8;
+    --bg-header: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-filter: #FFFFFF;
+    --border-soft: #F0E6E0;
+    --border-soft-alt: #EDE3DD;
+    --text-primary: #1A1A1A;
+    --text-muted: #6B5B5B;
+    --accent-burgundy: #7D3A4E;
+    --accent-blush: #F5E8EA;
+    --pending-bg: #FEF3C7;
+    --pending-text: #92400E;
+    --shadow-soft: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-card: 0 8px 24px rgba(0,0,0,0.07);
+  }
+
+  html, body {
+    background: var(--bg-page) !important;
+    color: var(--text-primary);
+  }
+
+  /* App shell: linen page instead of a large saturated frame. */
+  .app-layout,
+  .app-viewport,
+  .app-main-shell,
+  .page-home,
+  .page-search,
+  .page-saved,
+  .page-profile,
+  .page-landlord,
+  .page-contractors,
+  .page-services,
+  .page-agent,
+  .page-company,
+  .desktop-home-page,
+  .web-home-content,
+  .web-search-content {
+    background: var(--bg-page) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .app-main-shell {
+    border-left: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Desktop sidebar */
+  .desktop-sidebar {
+    background: var(--bg-sidebar) !important;
+    border-right: 1px solid var(--border-soft) !important;
+    box-shadow: none !important;
+  }
+
+  .sidebar-brand {
+    color: var(--text-primary) !important;
+  }
+
+  .sidebar-brand-mark {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+    border-color: var(--border-soft) !important;
+  }
+
+  .sidebar-brand em {
+    color: var(--accent-burgundy) !important;
+  }
+
+  .sidebar-item {
+    color: var(--text-muted) !important;
+    background: transparent !important;
+  }
+
+  .sidebar-item:hover {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+  }
+
+  .sidebar-item.is-active {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+    font-weight: 700;
+  }
+
+  .sidebar-icon,
+  .sidebar-item.is-active .sidebar-icon {
+    color: var(--accent-burgundy) !important;
+  }
+
+  .sidebar-help {
+    background: #FFF8F0 !important;
+    border: 1px solid var(--border-soft) !important;
+    color: var(--text-muted) !important;
+    box-shadow: none !important;
+  }
+
+  /* Desktop header */
+  .responsive-topbar {
+    background: var(--bg-header) !important;
+    border-bottom: 1px solid var(--border-soft-alt) !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .responsive-topbar-inner {
+    background: var(--bg-header);
+  }
+
+  .topbar-brand,
+  .topbar-brand-text,
+  .topbar-profile {
+    color: var(--text-primary) !important;
+  }
+
+  .topbar-brand-mark {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+    border-color: var(--border-soft) !important;
+  }
+
+  .topbar-brand-text span {
+    color: var(--accent-burgundy) !important;
+  }
+
+  .topbar-search-wrap {
+    background: #F5EDE6 !important;
+    border-color: #E8DDD6 !important;
+    color: var(--text-muted) !important;
+    border-radius: 999px !important;
+  }
+
+  .topbar-search-wrap input {
+    color: var(--text-primary) !important;
+  }
+
+  .topbar-search-wrap input::placeholder {
+    color: var(--text-muted) !important;
+  }
+
+  .topbar-icon-btn {
+    color: var(--text-muted) !important;
+  }
+
+  .topbar-icon-btn:hover,
+  .topbar-profile:hover {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+  }
+
+  .topbar-profile-copy b {
+    color: var(--text-primary) !important;
+  }
+
+  .topbar-profile-copy small,
+  .topbar-profile-copy small::before {
+    color: var(--text-muted) !important;
+    background: var(--text-muted) !important;
+  }
+
+  .topbar-avatar {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+  }
+
+  /* Header quick filters use the same restrained language. */
+  .topbar-quick-filters > button {
+    background: var(--bg-filter) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid #E8DDD6 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+  }
+
+  .topbar-quick-filters > button:hover {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+    border-color: var(--border-soft) !important;
+  }
+
+  /* Search fixed filter header sits below the desktop topbar. */
+  .search-page > div[style*="position: fixed"] {
+    top: 72px !important;
+    background: var(--bg-page) !important;
+    border-bottom: 0 !important;
+  }
+
+  /* Search/filter controls: white floating filter surface. */
+  .search-page > div[style*="position: fixed"] > .px-4 {
+    background: var(--bg-page);
+    padding: 14px 28px 16px !important;
+  }
+
+  .search-page > div[style*="position: fixed"] > .px-4 > div:first-child > div:first-child {
+    background: var(--bg-filter) !important;
+    border-color: #E8DDD6 !important;
+  }
+
+  .search-page .search-filter-button,
+  .search-page [aria-label="Open filters"] {
+    background: var(--bg-filter) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid #E8DDD6 !important;
+  }
+
+  .search-page .search-filter-button:hover,
+  .search-page [aria-label="Open filters"]:hover {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+  }
+
+
+  .desktop-filter-bar {
+    background: var(--bg-filter) !important;
+    border: 1px solid #E8DDD6;
+    border-radius: 12px;
+    box-shadow: var(--shadow-soft);
+    padding: 16px !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+  }
+
+  .desktop-filter-bar > button {
+    height: 36px !important;
+    min-height: 36px;
+    background: var(--bg-filter) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid #E8DDD6 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+  }
+
+  .desktop-filter-bar > button:hover {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+    border-color: var(--border-soft) !important;
+    box-shadow: var(--shadow-soft) !important;
+  }
+
+  .desktop-filter-bar > button[style*="background: rgb(245, 232, 234)"],
+  .desktop-filter-bar > button[style*="background: #F5E8EA"] {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+    border-color: var(--accent-burgundy) !important;
+  }
+
+  /* Inline filter pills from SearchPage. */
+  .search-page [ref],
+  .search-page .f-body {
+    --desktop-filter-text: var(--text-muted);
+  }
+
+  /* Active burgundy is intentionally limited to controls that communicate state. */
+  .search-page .flex.items-center.gap-1\.5.overflow-x-auto button[style*="background"] {
+    color: var(--text-muted);
+  }
+
+  .search-page .web-search-content,
+  .search-page .web-search-grid {
+    background: var(--bg-page) !important;
+  }
+
+  /* Property grid: listings are the visual hero. */
+  .web-property-grid,
+  .web-search-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 20px !important;
+    background: transparent !important;
+    padding: 8px 28px 120px !important;
+  }
+
+  .web-property-grid > *,
+  .web-search-grid > * {
+    min-width: 0;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-soft-alt) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--shadow-soft) !important;
+  }
+
+  .web-property-grid > *:hover,
+  .web-search-grid > *:hover {
+    box-shadow: var(--shadow-card) !important;
+  }
+
+  /* PostCard compact desktop styling. */
+  .post-card-compact {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-bottom: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+  }
+
+  .post-card-compact .desktop-detail-overlay {
+    background: var(--bg-card) !important;
+    border-color: var(--border-soft-alt) !important;
+    box-shadow: var(--shadow-card) !important;
+  }
+
+  .post-card-compact .f-body {
+    color: var(--text-muted);
+  }
+
+  .post-card-compact .f-body.font-semibold,
+  .post-card-compact .f-body.font-semibold.truncate {
+    color: var(--text-primary) !important;
+  }
+
+  .post-card-compact button:hover {
+    background: var(--accent-blush) !important;
+  }
+
+  /* Existing PriceTag gets the light pill treatment without changing its logic. */
+  .post-card-compact [class*="absolute"][class*="bottom"] span,
+  .web-property-grid > * [class*="absolute"][class*="bottom"] span {
+    background: rgba(255,255,255,0.90) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(240,230,224,0.9);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+    backdrop-filter: blur(6px);
+  }
+
+  /* GridTile/home cards. */
+  .web-property-grid > button {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .web-property-grid > button [style*="background: rgba(20,32,26,0.82)"] {
+    background: rgba(255,255,255,0.90) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Active suburb/location state. */
+  .web-property-grid > button [style*="background"] {
+    color: var(--text-muted);
+  }
+
+  /* Keep burgundy as a small accent for active/specific actions. */
+  .web-property-grid > button [style*="background: rgb(110, 99, 184)"],
+  .web-property-grid > button [style*="background: #6E63B8"] {
+    background: var(--accent-burgundy) !important;
+    color: #FFFFFF !important;
+  }
+
+  /* Primary desktop buttons only. */
+  .desktop-request-btn,
+  .desktop-empty-state button {
+    background: var(--accent-burgundy) !important;
+    color: #FFFFFF !important;
+    border-color: var(--accent-burgundy) !important;
+  }
+
+  .desktop-details-btn {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: #E8DDD6 !important;
+  }
+
+  /* Pending state. */
+  .desktop-listing-card [class*="pending"],
+  .post-card-compact [data-status="pending"] {
+    background: var(--pending-bg) !important;
+    color: var(--pending-text) !important;
+  }
+
+  /* Generic desktop empty/caught-up state. */
+  .desktop-empty-state,
+  .desktop-feed-footer {
+    color: var(--text-muted) !important;
+  }
+
+  .desktop-feed-footer {
+    min-height: 120px !important;
+    padding-bottom: 100px !important;
+  }
+
+  /* Existing Home toolbar/surfaces if present. */
+  .desktop-home-toolbar,
+  .desktop-listings-surface {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+  }
+
+  .desktop-toolbar-filter,
+  .desktop-category-pills button,
+  .desktop-secondary-filters button,
+  .desktop-secondary-filters select {
+    background: var(--bg-filter) !important;
+    color: var(--text-muted) !important;
+    border-color: #E8DDD6 !important;
+  }
+
+  .desktop-category-pills button.is-active,
+  .desktop-secondary-filters button.is-active {
+    background: var(--accent-blush) !important;
+    color: var(--accent-burgundy) !important;
+    border-color: var(--border-soft) !important;
+  }
+
+  .desktop-listing-card {
+    background: var(--bg-card) !important;
+    border-color: var(--border-soft-alt) !important;
+    box-shadow: var(--shadow-soft) !important;
+  }
+
+  .desktop-listing-card:hover {
+    box-shadow: var(--shadow-card) !important;
+  }
+
+  .desktop-listing-body h3,
+  .desktop-price-row strong,
+  .desktop-lister {
+    color: var(--text-primary) !important;
+  }
+
+  .desktop-location,
+  .desktop-type-label,
+  .desktop-price-row strong span,
+  .desktop-amenities,
+  .desktop-amenities span {
+    color: var(--text-muted) !important;
+  }
+
+  .desktop-listing-image-wrap {
+    aspect-ratio: 4 / 3;
+    height: auto !important;
+  }
+
+  .desktop-card-buttons .desktop-request-btn {
+    background: var(--accent-burgundy) !important;
+  }
+
+  /* Do not allow the old saturated shell to leak through behind pages. */
+  .page-home .home-page,
+  .page-search .search-page,
+  .page-home .web-home-content,
+  .page-search .web-search-content {
+    background: var(--bg-page) !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  /* Improve contrast for the small mobile brand callout without changing the theme. */
+  .home-page .hp-hero-message .f-body.font-semibold {
+    color: #FFFFFF !important;
+  }
+  .home-page .hp-hero-message span[style*="9AD4B3"] {
+    color: #FFFFFF !important;
+  }
+}
