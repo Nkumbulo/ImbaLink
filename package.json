@@ -12,7 +12,8 @@
     "audit": "npm audit --audit-level=high",
     "check:architecture": "node scripts/check-architecture.mjs",
     "verify": "npm run check:imports && npm run check:architecture && npm test && npm run build",
-    "check:imports": "node scripts/check-imports.mjs"
+    "check:imports": "node scripts/check-imports.mjs",
+    "dashboard:audit": "node scripts/dashboard-audit/generate-findings.mjs"
   },
   "dependencies": {
     "@capacitor-community/sqlite": "^7.0.0",
