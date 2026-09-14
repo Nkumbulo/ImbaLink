@@ -7,6 +7,7 @@ import { rowToProperty, propertyToRow } from '../../../services/db/properties/ma
 import { invalidatePropertyCache, readPropertySaveCounts } from './queries';
 import { idbGet, idbGetAll, idbPut, idbDelete } from '../../../core/infrastructure/indexeddb';
 import { enqueue } from '../../../core/sync/outbox';
+import { retryWithBackoff } from '../../utils/retryWithBackoff';
 
 // --- Landlord listings ---
 // Listings are properties with an owner. Seeded catalog rows have
@@ -51,7 +52,7 @@ export async function getLandlordListings(userId = null) {
   return [...serverProperties, ...localOnly];
 }
 
-async function uploadListingPhotosFirst({ propertyId, ownerId, mediaIds }) {
+async function uploadListingPhotosFirst({ propertyId, ownerId, mediaIds, onPhotoUploaded }) {
   const ids = (mediaIds || []).filter(Boolean).slice(0, 8);
   if (!ids.length) throw new Error('LISTING_PHOTOS_REQUIRED: Add at least one photo before publishing.');
 
@@ -71,14 +72,26 @@ async function uploadListingPhotosFirst({ propertyId, ownerId, mediaIds }) {
       throw new Error(`LISTING_PHOTO_UNAVAILABLE: Photo ${position + 1} is no longer available. Please add it again.`);
     }
     const path = `${ownerId}/${propertyId}/${position}.jpg`;
-    const { error } = await supabase.storage
-      .from('property-images')
-      .upload(path, record.blob, {
-        contentType: 'image/jpeg',
-        upsert: true,
-        cacheControl: '31536000',
-      });
-    if (error) throw error;
+
+    // The actual fix for "fails after 10 manual tries": a single dropped
+    // connection or a slow mobile network blip used to fail this ONE
+    // photo's upload, which failed the whole Promise.all below, which
+    // discarded every photo that HAD already uploaded and made the user
+    // manually restart the entire batch. Retrying automatically here,
+    // per photo, means a transient failure is invisible to the user in
+    // the overwhelming majority of cases — the visible "try again" is now
+    // reserved for genuinely exhausted retries, not routine network
+    // hiccups.
+    await retryWithBackoff(async () => {
+      const { error } = await supabase.storage
+        .from('property-images')
+        .upload(path, record.blob, {
+          contentType: 'image/jpeg',
+          upsert: true,
+          cacheControl: '31536000',
+        });
+      if (error) throw error;
+    });
 
     const { data: publicData } = supabase.storage.from('property-images').getPublicUrl(path);
     if (!publicData?.publicUrl) throw new Error('Supabase did not return a public photo URL.');
@@ -90,6 +103,7 @@ async function uploadListingPhotosFirst({ propertyId, ownerId, mediaIds }) {
       width: record.width,
       height: record.height,
     };
+    onPhotoUploaded?.(uploaded.filter(Boolean).length, ids.length);
   };
 
   try {
@@ -108,7 +122,7 @@ async function uploadListingPhotosFirst({ propertyId, ownerId, mediaIds }) {
   }
 }
 
-export async function createLandlordListing(input) {
+export async function createLandlordListing(input, { onProgress } = {}) {
   const ownerId = requireCurrentUserId(input?.userId);
   const id = newId('listing');
 
@@ -127,16 +141,26 @@ export async function createLandlordListing(input) {
     throw new Error('LISTING_PHOTOS_REQUIRED: Add at least one photo before publishing.');
   }
 
+  // Progress is weighted, not a bare "step N of M" count — photo uploads
+  // are by far the slowest part of this whole operation, so they get the
+  // bulk of the bar (80%) and the two remaining database writes share the
+  // rest, rather than every step looking equally sized regardless of how
+  // long it actually takes.
+  onProgress?.({ phase: 'uploading-photos', percent: 0, photosDone: 0, photosTotal: mediaIds.length });
   const uploadedPhotos = await uploadListingPhotosFirst({
     propertyId: id,
     ownerId,
     mediaIds,
+    onPhotoUploaded: (done, total) => {
+      onProgress?.({ phase: 'uploading-photos', percent: Math.round((done / total) * 80), photosDone: done, photosTotal: total });
+    },
   });
 
   const row = propertyToRow(input, { id, ownerUserId: ownerId });
 
   try {
-    const { data, error } = await supabase.from('properties').insert(row).select();
+    onProgress?.({ phase: 'creating-listing', percent: 82, photosDone: mediaIds.length, photosTotal: mediaIds.length });
+    const { data, error } = await retryWithBackoff(() => supabase.from('properties').insert(row).select());
     if (error) {
       throw new Error(`LISTING_CREATE_FAILED: ${error.message || 'The listing could not be saved.'}`);
     }
@@ -154,13 +178,15 @@ export async function createLandlordListing(input) {
       height: item.height,
     }));
 
-    const { error: imageError } = await supabase
+    onProgress?.({ phase: 'saving-photos', percent: 92, photosDone: mediaIds.length, photosTotal: mediaIds.length });
+    const { error: imageError } = await retryWithBackoff(() => supabase
       .from('property_images')
-      .insert(imageRows);
+      .insert(imageRows));
 
     if (imageError) {
       throw new Error(`LISTING_PHOTO_METADATA_FAILED: ${imageError.message || 'Photo metadata could not be saved.'}`);
     }
+    onProgress?.({ phase: 'done', percent: 100, photosDone: mediaIds.length, photosTotal: mediaIds.length });
 
     const localRecord = {
       id,
@@ -215,7 +241,7 @@ export async function createLandlordListing(input) {
 // rows but does not delete the underlying Storage objects for photos that
 // were removed, so a removed photo's file can be left orphaned in Storage
 // (a small, non-security cleanup gap, not a data-correctness one).
-export async function updateLandlordListing(propertyId, input) {
+export async function updateLandlordListing(propertyId, input, { onProgress } = {}) {
   const ownerId = requireUser();
   const id = String(propertyId || '');
   if (!id) throw new Error('Listing id is required.');
@@ -272,6 +298,13 @@ export async function updateLandlordListing(propertyId, input) {
   const finalPhotos = new Array(inputImages.length);
   const uploadedPaths = [];
   const uploadedMediaIds = [];
+  // Only newly-added photos (a mediaId at this position, not yet an
+  // https:// URL) actually upload anything — existing photos just carry
+  // their URL straight through. Progress is weighted against that real
+  // count, not the total gallery size, so editing a listing with 6
+  // existing photos plus 1 new one doesn't sit at "1/7" the whole time.
+  const newPhotoCount = mediaIds.filter(Boolean).length;
+  let newPhotosDone = 0;
 
   const uploadEditedPhoto = async (position) => {
     const url = String(inputImages[position] || '');
@@ -286,12 +319,17 @@ export async function updateLandlordListing(propertyId, input) {
       throw new Error(`LISTING_PHOTO_UNAVAILABLE: Photo ${position + 1} is no longer available. Please add it again.`);
     }
     const path = `${ownerId}/${id}/${position}-${Date.now()}-${position}.jpg`;
-    const { error: uploadError } = await supabase.storage
-      .from('property-images')
-      .upload(path, record.blob, {
-        contentType: 'image/jpeg', upsert: false, cacheControl: '31536000',
-      });
-    if (uploadError) throw uploadError;
+    // Same automatic-retry treatment as createLandlordListing — a single
+    // network blip on one edited photo shouldn't force restarting the
+    // whole save.
+    await retryWithBackoff(async () => {
+      const { error: uploadError } = await supabase.storage
+        .from('property-images')
+        .upload(path, record.blob, {
+          contentType: 'image/jpeg', upsert: false, cacheControl: '31536000',
+        });
+      if (uploadError) throw uploadError;
+    });
 
     const { data: publicData } = supabase.storage.from('property-images').getPublicUrl(path);
     if (!publicData?.publicUrl) throw new Error('Supabase did not return a public photo URL.');
@@ -300,8 +338,11 @@ export async function updateLandlordListing(propertyId, input) {
     };
     uploadedPaths.push(path);
     uploadedMediaIds.push(mediaId);
+    newPhotosDone += 1;
+    onProgress?.({ phase: 'uploading-photos', percent: Math.round((newPhotosDone / newPhotoCount) * 70), photosDone: newPhotosDone, photosTotal: newPhotoCount });
   };
 
+  onProgress?.({ phase: 'uploading-photos', percent: newPhotoCount ? 0 : 70, photosDone: 0, photosTotal: newPhotoCount });
   try {
     const concurrency = Math.min(3, inputImages.length);
     let nextIndex = 0;
@@ -319,6 +360,8 @@ export async function updateLandlordListing(propertyId, input) {
 
   const resolvedPhotos = finalPhotos.filter(Boolean).slice(0, 8);
   if (!resolvedPhotos.length) throw new Error('LISTING_PHOTOS_REQUIRED: Add at least one photo before saving.');
+
+  onProgress?.({ phase: 'saving-photos', percent: 80, photosDone: newPhotoCount, photosTotal: newPhotoCount });
 
   // Replace only the metadata rows. The underlying Storage objects for removed
   // photos are intentionally cleaned up below after the new gallery is known.
@@ -361,6 +404,7 @@ export async function updateLandlordListing(propertyId, input) {
   // Only commit the property fields after the complete gallery is ready. If
   // this database update fails, the old property fields and old gallery are
   // restored instead of leaving a half-edited listing behind.
+  onProgress?.({ phase: 'creating-listing', percent: 90, photosDone: newPhotoCount, photosTotal: newPhotoCount });
   const { data, error } = await supabase
     .from('properties')
     .update(row)
@@ -430,6 +474,7 @@ export async function updateLandlordListing(propertyId, input) {
 
   invalidatePropertyCache();
   const ownerProfiles = await readPublicUserProfiles([ownerId]);
+  onProgress?.({ phase: 'done', percent: 100, photosDone: newPhotoCount, photosTotal: newPhotoCount });
   return rowToProperty(data[0], finalUrls, ownerProfiles.get(ownerId));
 }
 

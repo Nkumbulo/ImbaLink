@@ -59,7 +59,16 @@ export default function MessagesPage(props) {
               top: 0,
               left: 0,
               right: 0,
-              bottom: `calc(79px + env(safe-area-inset-bottom, 0px) + ${keyboardInset}px)`,
+              // The 79px reservation matches BottomNav's height — needed
+              // while browsing the inbox (no thread open) since BottomNav
+              // is visible then and this content must not run underneath
+              // it. Once a specific thread is open, App.jsx unmounts
+              // BottomNav entirely (see the `hidden` prop there), so
+              // there's nothing left to reserve space for — the thread
+              // gets the full screen height, keyboard aside.
+              bottom: currentThreadId != null
+                ? `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px)`
+                : `calc(79px + env(safe-area-inset-bottom, 0px) + ${keyboardInset}px)`,
               background: T.ink,
               display: "flex",
               flexDirection: "column",

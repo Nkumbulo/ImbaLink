@@ -86,6 +86,30 @@ so re-running one that's already applied is safe.
 migration — it does **not** depend on `007` (it recreates every RPC it
 needs). Run it any time messaging/viewing-request RPCs need to be
 reinstalled from scratch; see "Messaging / viewing-request fix" below.
+`1000-phase6-messaging-reply-fix.sql` and `1001-phase6-message-read-rpc.sql`
+depend on `999` having been run first (both recreate RPCs `999` also
+touches). `1002-cursor-message-sync.sql` depends on `1001` — it adds an
+optional `(p_after_sent_at, p_after_id)` cursor to
+`get_conversation_messages()` so the client can sync "everything new since
+the last message I have" instead of re-fetching the most-recent-100 window
+on every reconnect; existing calls with no cursor are unaffected.
+`1003-viewing-request-dual-notifications.sql` depends on
+`019-notifications.sql` — it widens `notify_viewing_request_status_change()`
+to notify BOTH the tenant and the landlord on every accept/decline/cancel/
+complete transition (previously only whichever side didn't act was
+notified; the actor now also gets a confirmation), reusing the existing
+`viewing_status` notification type so the bell's icon/sound mapping needs
+no client changes.
+`1004-request-viewing-property-linkage.sql` depends on `1002` — tags every
+viewing-request message with the exact `related_property_id` it's about
+(a real FK, restoring what `050` originally did before `999`/`1000`/`1001`
+silently dropped it on later redefinitions of the same two functions) and
+returns it through `get_conversation_messages()`. Fixes a real, confirmed
+bug: the client previously matched a message back to a property purely by
+parsing the property NAME out of the message text and searching the
+*entire* catalog for a title match — not scoped to the conversation's
+landlord — so two properties sharing an identical title (confirmed to
+happen in this app's own seed data) could resolve to the wrong one.
 `016` and `017` both depend on `999-messaging-production-fix.sql` and
 `013-security-hardening.sql` respectively having been run first. `020`
 onward depend on `013`, `017`, and `018` having been run first (each says so

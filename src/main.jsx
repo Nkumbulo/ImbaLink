@@ -8,6 +8,7 @@ import './styles/GlobalStyles.css';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Keyboard } from '@capacitor/keyboard';
 import { supabaseAuthProvider } from './auth/supabaseAuthProvider';
 import { startSyncCoordinator } from './core/sync/syncCoordinator';
 
@@ -77,6 +78,17 @@ async function bootstrap() {
         console.error('Native Google sign-in redirect failed:', err?.message || err);
       });
     });
+
+    // Belt-and-suspenders alongside capacitor.config.json's
+    // Keyboard.resize:"none": that setting stops the WebView itself from
+    // resizing when the keyboard opens, but iOS can still try to scroll
+    // the page's content to bring a focused input into view, which moves
+    // position:fixed elements right along with it in exactly the way
+    // useMessageViewport.js's keyboardInset-driven layout is meant to
+    // handle on its own. Disabling native scroll leaves that entirely to
+    // the app's own layout math — see useMessageViewport.js's
+    // Keyboard.addListener block for the other half of this.
+    Keyboard.setScroll({ isDisabled: true }).catch(() => {});
   }
 
   // Fetch the user's saved theme in the background and swap it in once

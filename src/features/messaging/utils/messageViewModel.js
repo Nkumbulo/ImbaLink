@@ -1,3 +1,5 @@
+export const VIEWING_TERMINAL_STATUSES = Object.freeze(["declined", "cancelled", "completed"]);
+
 const VIEWING_REQUEST_PATTERN = /^I would like to request a viewing(?: of (.+?))?\.$/i;
 
 export function parseViewingRequest(text) {
@@ -6,7 +8,27 @@ export function parseViewingRequest(text) {
   return { requestedTitle: match[1]?.trim() || "" };
 }
 
-function resolveProperty(requestedTitle, properties, currentProperty) {
+export function resolveProperty(requestedTitle, properties, currentProperty, relatedPropertyId) {
+  // Exact id match — set server-side by request_property_viewing() as of
+  // 1004-request-viewing-property-linkage.sql — is authoritative and
+  // unambiguous whenever it's present, so it's always tried first. Skips
+  // the title-matching entirely, which matters because that match is
+  // NOT scoped to this conversation's landlord: it searches every
+  // property in the whole catalog, and two properties (same landlord or
+  // different ones) can and do share an identical title — confirmed in
+  // this app's own data (e.g. two separate "Back room, Unit L" listings
+  // from different owners). A title collision there doesn't just
+  // mislabel one message; because a conversation now spans every property
+  // a tenant has asked this landlord about, it can make an unrelated
+  // property's card appear for a request that was never about it.
+  if (relatedPropertyId) {
+    const exact = properties.find((p) => String(p?.id) === String(relatedPropertyId));
+    if (exact) return exact;
+    // Linked id doesn't resolve against the currently-loaded properties
+    // (e.g. delisted) — fall through to the heuristics below rather than
+    // showing nothing.
+  }
+
   const normalizedTitle = requestedTitle.toLowerCase();
   const exactTitle = requestedTitle
     ? properties.find((p) => String(p?.title || "").trim().toLowerCase() === normalizedTitle)
@@ -25,7 +47,7 @@ export function buildViewingRequestContexts({ currentThreadType, rawMessages, pr
     .map((message) => {
       const parsed = parseViewingRequest(message?.text);
       if (!parsed || !message?.senderId) return null;
-      const property = resolveProperty(parsed.requestedTitle, properties, currentProperty);
+      const property = resolveProperty(parsed.requestedTitle, properties, currentProperty, message.relatedPropertyId);
       if (!property) return null;
       return { property, requesterId: String(message.senderId), messageId: message.id || null };
     })
@@ -38,13 +60,13 @@ export function buildViewingRequestContexts({ currentThreadType, rawMessages, pr
     );
 }
 
-export function buildCurrentMessages({ rawMessages, currentUserId, properties, currentProperty, getViewingRequestStatus, viewingRequestBusyKey }) {
+export function buildCurrentMessages({ rawMessages, currentUserId, properties, currentProperty, getViewingRequestStatus, getViewingRequestResolvedAt, viewingRequestBusyKey }) {
   return (rawMessages || []).map((message) => {
     const parsed = parseViewingRequest(message?.text);
     let attachment = null;
 
     if (parsed) {
-      const property = resolveProperty(parsed.requestedTitle, properties, currentProperty);
+      const property = resolveProperty(parsed.requestedTitle, properties, currentProperty, message.relatedPropertyId);
       if (property) {
         const image = Array.isArray(property.images) && property.images.length
           ? property.images[0]
@@ -76,6 +98,9 @@ export function buildCurrentMessages({ rawMessages, currentUserId, properties, c
       status: message.status,
       attachment,
       viewingRequestStatus: requestKey ? getViewingRequestStatus(requestPropertyId, requestRequesterId) : null,
+      viewingRequestResolvedAt: requestKey && getViewingRequestResolvedAt
+        ? getViewingRequestResolvedAt(requestPropertyId, requestRequesterId)
+        : null,
       viewingRequestBusy: requestKey ? viewingRequestBusyKey === requestKey : false,
     };
   });

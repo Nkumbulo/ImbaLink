@@ -3,6 +3,16 @@ import { Link2 } from "lucide-react";
 import { T } from "../../../../styles/tokens";
 import Avatar from "../../../../components/common/Avatar";
 import MessageTicks, { getTickStatus } from "./MessageTicks";
+import { VIEWING_TERMINAL_STATUSES } from "../../utils/messageViewModel";
+
+const RESOLVED_LABEL = { declined: "declined", cancelled: "cancelled", completed: "completed" };
+
+function formatResolvedDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
 
 export function MessageList({
   currentThreadName,
@@ -33,6 +43,9 @@ export function MessageList({
             const messageText = String(msg.text || "");
             const isViewingRequestMessage = /^I would like to request a viewing(?: of .+)?\.$/i.test(messageText);
             const requestedPropertyTitle = messageText.match(/^I would like to request a viewing(?: of (.+))?\.$/i)?.[1]?.trim() || "";
+            const isResolvedViewingRequest = isViewingRequestMessage
+              && msg.attachment?.type === "property"
+              && VIEWING_TERMINAL_STATUSES.includes(msg.viewingRequestStatus);
 
             return (
               <React.Fragment key={messageKey}>
@@ -100,13 +113,36 @@ export function MessageList({
                         "100%",
                     }}
                   >
-                    {msg.text && (
+                    {msg.text && !isResolvedViewingRequest && (
                       <div style={{ marginBottom: msg.attachment?.type === "property" ? 10 : 0 }}>
                         {isViewingRequestMessage ? "I would like to request a viewing." : msg.text}
                       </div>
                     )}
 
-                    {msg.attachment?.type === "property" && (
+                    {/* Once a viewing request is declined, cancelled, or completed,
+                       the rich property card (image + Accept/Decline/Cancel
+                       controls) no longer serves any purpose — there's nothing
+                       left to act on, and the card was staying in the thread
+                       forever as dead weight (an image that never changes, a
+                       re-render every reconcile tick). Collapse it to a single
+                       plain-text line instead: the chat should read as text,
+                       not keep carrying a stale listing card past the point
+                       it's actionable. */}
+                    {isResolvedViewingRequest ? (
+                      <div
+                        style={{
+                          fontSize: 13.5,
+                          lineHeight: 1.5,
+                          color: isMe ? T.paper : T.ink,
+                          opacity: 0.85,
+                        }}
+                      >
+                        <span style={{ fontWeight: 800 }}>{msg.attachment?.title || "Property"}</span>
+                        {" — viewing "}
+                        {RESOLVED_LABEL[msg.viewingRequestStatus] || msg.viewingRequestStatus}
+                        {msg.viewingRequestResolvedAt ? ` on ${formatResolvedDate(msg.viewingRequestResolvedAt)}` : ""}
+                      </div>
+                    ) : msg.attachment?.type === "property" && (
                       <div
                         style={{
                           width: "100%",
@@ -303,21 +339,10 @@ export function MessageList({
                             )}
                           </div>
                         )}
-                        {isViewingRequestMessage && msg.viewingRequestStatus === "declined" && (
-                          <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 800, color: T.brick }}>
-                            Declined
-                          </div>
-                        )}
-                        {isViewingRequestMessage && msg.viewingRequestStatus === "cancelled" && (
-                          <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 800, color: T.ink, opacity: 0.72 }}>
-                            Request cancelled
-                          </div>
-                        )}
-                        {isViewingRequestMessage && msg.viewingRequestStatus === "completed" && (
-                          <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 800, color: "var(--theme-green)" }}>
-                            Viewing completed
-                          </div>
-                        )}
+                        {/* declined/cancelled/completed no longer render here at all —
+                           see isResolvedViewingRequest above, which collapses the
+                           entire card (this whole block) to a plain-text summary
+                           once the request reaches any of those three states. */}
                       </div>
                     )}
 

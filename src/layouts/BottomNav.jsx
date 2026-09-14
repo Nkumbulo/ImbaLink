@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { T } from "../styles/tokens";
 import UserAvatar from "../components/common/UserAvatar";
 
-export default function BottomNav({ tab, setTab, unreadCount = 0, studentMode = false }) {
+export default function BottomNav({ tab, setTab, unreadCount = 0, studentMode = false, hidden = false }) {
   const [collapsed, setCollapsed] = useState(false);
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
   const ticking = useRef(false);
@@ -46,6 +46,13 @@ export default function BottomNav({ tab, setTab, unreadCount = 0, studentMode = 
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTab(id);
   };
+
+  // Placed after all hooks above (Rules of Hooks) — unmounting entirely,
+  // rather than a display:none-style CSS hide, so a full-screen chat
+  // thread has genuinely nothing fixed at the bottom of the screen to
+  // conflict with the keyboard/composer, instead of an invisible element
+  // still occupying layout space or catching stray taps.
+  if (hidden) return null;
 
   return (
     <nav className={`app-nav mobile-floating-nav${collapsed ? " mobile-nav-collapsed" : ""}`} aria-label="Main navigation">

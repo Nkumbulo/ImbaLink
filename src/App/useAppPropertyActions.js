@@ -79,19 +79,20 @@ export default function useAppPropertyActions({
     return result || true;
   };
 
-  const createListing = async (listing) => {
+  const createListing = async (listing, { onProgress } = {}) => {
     const created = await createLandlordListing({
       ...listing, userId: user?.id, landlordRegistrationId: landlordRegistration?.id || null,
       landlord: landlordRegistration?.fullName || userProfile?.name || "My landlord account",
       landlordVerified: landlordRegistration?.verificationStatus === "verified",
       city: listing.city || "Harare", verification: "pending",
-    });
+    }, { onProgress });
     setTab("home");
     setPinnedListingId(created?.id ?? null);
     return created;
   };
 
-  const updateListing = (propertyId, listing) => updateLandlordListing(propertyId, { ...listing, city: listing.city || "Harare" });
+  const updateListing = (propertyId, listing, { onProgress } = {}) =>
+    updateLandlordListing(propertyId, { ...listing, city: listing.city || "Harare" }, { onProgress });
 
   const toggleListingPause = async (propertyId, paused) => {
     const updated = await toggleLandlordListingPause(propertyId, paused);

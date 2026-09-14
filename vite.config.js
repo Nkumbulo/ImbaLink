@@ -9,22 +9,5 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined;
-          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/') || id.includes('node_modules/scheduler')) {
-            return 'vendor-react';
-          }
-          if (id.includes('node_modules/@supabase')) {
-            return 'vendor-supabase';
-          }
-          if (id.includes('node_modules/leaflet') || id.includes('node_modules/react-leaflet')) {
-            return 'vendor-leaflet';
-          }
-          return undefined;
-        },
-      },
-    },
   },
 });

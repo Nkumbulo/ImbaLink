@@ -20,6 +20,7 @@ export const conversationLoadingMethods = {
       createdAt: legacyMessage.ts,
       status: legacyMessage.status || MESSAGE_STATUS.SENT,
       clientKey: legacyMessage.clientKey || null,
+      relatedPropertyId: legacyMessage.relatedPropertyId || null,
     });
   },
 
@@ -95,10 +96,21 @@ export const conversationLoadingMethods = {
   // after it's already been downloaded." For a long-running conversation
   // with hundreds of messages, that's the difference between transferring
   // the whole history and transferring only what's actually shown.
-  async _loadMessages(conversationIds, userId) {
+  //
+  // `cursor`, when given as { sentAt, id }, switches this into
+  // cursor-based forward-sync mode: "everything strictly after this
+  // point, oldest-first" (see 1002-cursor-message-sync.sql), instead of
+  // "the most recent N regardless of what the caller already has". Used
+  // by getMessagesSince() below for the reconnect/visibility-regain path,
+  // where re-downloading the same most-recent-N window on every
+  // reconcile is both wasteful and, for a conversation that received more
+  // than MESSAGE_DISPLAY_LIMIT messages while backgrounded, was silently
+  // dropping the older half of what was missed.
+  async _loadMessages(conversationIds, userId, cursor = null) {
     const ids = [...new Set((conversationIds || []).filter(Boolean).map(String))];
     if (!ids.length) return new Map();
     const id = ids[0];
+    const hasCursor = Boolean(cursor?.sentAt && cursor?.id);
 
     let data = null;
     let error = null;
@@ -108,14 +120,28 @@ export const conversationLoadingMethods = {
     // policy recursion affecting a valid recipient. Keep the direct query
     // as a compatibility fallback until every deployment has run the new
     // migration.
-    const rpcResult = await supabase.rpc('get_conversation_messages', {
-      p_conversation_id: id,
-      p_limit: MESSAGE_DISPLAY_LIMIT,
-    });
+    const rpcParams = { p_conversation_id: id, p_limit: MESSAGE_DISPLAY_LIMIT };
+    if (hasCursor) {
+      rpcParams.p_after_sent_at = new Date(cursor.sentAt).toISOString();
+      rpcParams.p_after_id = String(cursor.id);
+    }
+    const rpcResult = await supabase.rpc('get_conversation_messages', rpcParams);
     data = rpcResult.data;
     error = rpcResult.error;
 
     if (error && /function .*get_conversation_messages|does not exist/i.test(String(error.message || ''))) {
+      // Covers both "the RPC doesn't exist at all yet" (pre-1001) and
+      // "the 4-arg cursor overload doesn't exist yet" (pre-1002) —
+      // Postgres reports a failed overload match the same way as a
+      // missing function. In cursor mode there's no sensible direct-query
+      // fallback: a full most-recent-N re-fetch here would defeat the
+      // entire point of a delta sync (and risk the caller treating a
+      // "most recent N" result as if it were "everything since the
+      // cursor", re-showing already-seen messages as new). Degrade to
+      // "nothing new" instead — the next full getConversation() call
+      // (initial load, or this same reconcile path before a cursor
+      // exists) still gets the complete picture.
+      if (hasCursor) return new Map([[id, []]]);
       const direct = await supabase
         .from('messages')
         .select('id, conversation_id, sender_user_id, body, sent_at')
@@ -128,15 +154,23 @@ export const conversationLoadingMethods = {
     }
     if (error) throw error;
 
-    const rows = (data || [])
-      .slice()
-      .reverse()
-      .map((row) => ({
-        id: row.id,
-        from: String(row.sender_user_id) === String(userId) ? 'me' : 'them',
-        text: row.body,
-        ts: new Date(row.sent_at).getTime(),
-      }));
+    // Cursor mode already returns oldest-first from the RPC (see the SQL
+    // migration) — that's the natural order to append to an existing
+    // list, so no reverse. Non-cursor mode returns newest-first and gets
+    // reversed, unchanged from before.
+    const ordered = hasCursor ? (data || []).slice() : (data || []).slice().reverse();
+    const rows = ordered.map((row) => ({
+      id: row.id,
+      from: String(row.sender_user_id) === String(userId) ? 'me' : 'them',
+      text: row.body,
+      ts: new Date(row.sent_at).getTime(),
+      // Present once the deployment has run 1004-request-viewing-property-
+      // linkage.sql; undefined/null on an older deployment or an older
+      // message — _toCanonical below just passes through whatever's here,
+      // and messageViewModel.js's resolveProperty falls back to its
+      // text-parsing heuristic when it's absent.
+      relatedPropertyId: row.related_property_id || null,
+    }));
 
     return new Map([[id, rows]]);
   },
@@ -273,6 +307,31 @@ export const conversationLoadingMethods = {
     });
 
     return conversations;
+  },
+
+  // Lightweight cursor-based delta sync, for reconciling an already-open
+  // thread after a reconnect/visibility-regain instead of re-fetching the
+  // whole most-recent-N window (see getConversation() below, which is
+  // what this used to reuse wholesale). `cursor` is { sentAt, id } — the
+  // (sent_at, id) of the last message the caller already has; only
+  // messages strictly after it come back, oldest-first, ready to append.
+  //
+  // Deliberately skips _buildConversation() entirely: no participant/
+  // unread-count/lastMessage rebuild, no metadata resolution — just the
+  // new rows, canonicalized. The caller already has correct metadata from
+  // its last full getConversation() call; recomputing it here on every
+  // reconcile would be the same wasted work this method exists to avoid.
+  // `otherParticipantId` is passed in by the caller (already resolved)
+  // rather than re-resolved here, for the same reason.
+  async getMessagesSince(conversationId, userId, cursor, otherParticipantId = null) {
+    const key = String(conversationId || '');
+    if (!key || !userId || !cursor?.sentAt || !cursor?.id) return [];
+    if (!isOnline()) throw new Error("You're offline — check your connection and try again.");
+
+    const uid = String(userId);
+    const grouped = await this._loadMessages([key], uid, cursor);
+    const rows = grouped.get(key) || [];
+    return rows.map((m) => this._toCanonical(m, key, uid, otherParticipantId)).filter(Boolean);
   },
 
   async getConversation(conversationId, userId) {

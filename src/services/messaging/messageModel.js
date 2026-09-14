@@ -51,6 +51,7 @@ export function createMessage({
   type = MESSAGE_TYPE.TEXT,
   attachment = null,
   clientKey = null,
+  relatedPropertyId = null,
 } = {}) {
   return {
     id: id || safeId("msg"),
@@ -63,6 +64,13 @@ export function createMessage({
     type,
     attachment: attachment || null,
     clientKey: clientKey || null,
+    // The exact property this message is about, when the server knows it
+    // (messages.related_property_id — set by request_property_viewing()
+    // as of 1004-request-viewing-property-linkage.sql). Null for older
+    // messages sent before that column was populated, or messages
+    // unrelated to a viewing request; messageViewModel.js falls back to
+    // its text/title-parsing heuristic only when this is null.
+    relatedPropertyId: relatedPropertyId != null ? String(relatedPropertyId) : null,
   };
 }
 

@@ -9,12 +9,21 @@ import {
   scheduleMessageCacheWrite,
 } from '../utils/messageCache';
 import { MESSAGE_LOAD_TIMEOUT_MS, withMessageLoadTimeout } from '../utils/messageTimeout';
+import { getLatestServerCursor } from '../utils/messageCursor';
 
 export function useConversationMessages(conversationId, userId) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const pendingTextRef = useRef(new Map());
+  // Mirrors `messages` synchronously so the reconcile effect can read the
+  // latest list (to derive a sync cursor from it) without depending on
+  // React's setState batching timing or needing the effect to re-run on
+  // every message change — same pattern as pendingTextRef below.
+  const messagesRef = useRef([]);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
   // The resolved conversation's own displayName/displayAvatar/otherParticipantId
   // — the SAME resolution getConversation() already does correctly (looking
   // up the real other participant's actual name, not a static guess tied to
@@ -24,6 +33,15 @@ export function useConversationMessages(conversationId, userId) {
   // (direct property nav, contractor, roommate, inbox click) keeping its
   // own separate, sometimes-stale copy.
   const [conversationMeta, setConversationMeta] = useState(null);
+  // Mirrors `conversationMeta` for the same reason as messagesRef — read
+  // inside the reconcile effect below without pulling conversationMeta
+  // into that effect's own dependency array (which would tear down and
+  // re-add the visibilitychange/online listeners every time metadata
+  // changes, not just when the thread itself changes).
+  const conversationMetaRef = useRef(null);
+  useEffect(() => {
+    conversationMetaRef.current = conversationMeta;
+  }, [conversationMeta]);
   // The REAL conversation id, as resolved by getConversation() — may
   // differ from the `conversationId` prop, which is just the routing key
   // whatever entry point was used (a bare property id, "contractor_x",
@@ -248,27 +266,57 @@ export function useConversationMessages(conversationId, userId) {
   // an in-flight optimistic/pending send (a "temp-" id not yet confirmed
   // by the server) is reconciled by clientKey instead of being wiped out
   // by a wholesale replace.
+  //
+  // Cursor-based sync (see getMessagesSince / 1002-cursor-message-sync.sql):
+  // once there's at least one confirmed message to anchor to, this asks
+  // for "everything after the last message I already have" instead of
+  // re-fetching the whole most-recent-100 window on every single
+  // reconcile. Two real problems that fixed, not just wasted bandwidth:
+  // (1) a conversation that received MORE than 100 messages while
+  // backgrounded used to silently lose the older half of what was
+  // missed, since "most recent 100" has no memory of where the client
+  // left off; a cursor has no such ceiling. (2) every tab-focus and every
+  // network reconnect — which can happen many times in one session on a
+  // spotty mobile connection — no longer re-downloads up to 100 messages
+  // just to find zero or one new ones.
   useEffect(() => {
     const key = resolvedConversationId || conversationId;
     if (!key || !userId) return undefined;
 
+    const applyFetched = (fetched) => {
+      if (!fetched.length) return;
+      setMessages((prev) => {
+        const next = fetched.reduce(
+          (acc, message) => applyMessageEvent(acc, { type: "message", message }),
+          prev
+        );
+        cacheMessages(key, next);
+        if (conversationId) cacheMessages(conversationId, next);
+        scheduleMessageCacheWrite(userId, key, next);
+        if (conversationId) scheduleMessageCacheWrite(userId, conversationId, next);
+        return next;
+      });
+    };
+
     const reconcile = () => {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
-      withMessageLoadTimeout(messagingService.getConversation(key, userId)).then((conversation) => {
-        const fetched = Array.isArray(conversation?.messages) ? conversation.messages : [];
-        if (!fetched.length) return;
-        setMessages((prev) => {
-          const next = fetched.reduce(
-            (acc, message) => applyMessageEvent(acc, { type: "message", message }),
-            prev
-          );
-          cacheMessages(key, next);
-          if (conversationId) cacheMessages(conversationId, next);
-          scheduleMessageCacheWrite(userId, key, next);
-          if (conversationId) scheduleMessageCacheWrite(userId, conversationId, next);
-          return next;
-        });
-      }).catch(() => {});
+
+      const cursor = getLatestServerCursor(messagesRef.current);
+      if (!cursor) {
+        // Nothing confirmed yet to sync forward from (brand-new thread,
+        // or still waiting on the very first send) — fall back to the
+        // full-conversation fetch, exactly as before.
+        withMessageLoadTimeout(messagingService.getConversation(key, userId))
+          .then((conversation) => applyFetched(Array.isArray(conversation?.messages) ? conversation.messages : []))
+          .catch(() => {});
+        return;
+      }
+
+      withMessageLoadTimeout(
+        messagingService.getMessagesSince(key, userId, cursor, conversationMetaRef.current?.otherParticipantId || null)
+      )
+        .then((fetched) => applyFetched(Array.isArray(fetched) ? fetched : []))
+        .catch(() => {});
     };
 
     if (typeof document !== "undefined") document.addEventListener("visibilitychange", reconcile);

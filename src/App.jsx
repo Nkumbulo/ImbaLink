@@ -310,7 +310,28 @@ function AppContent() {
         />
       )}
 
-      <BottomNav tab={tab} setTab={setTab} unreadCount={totalUnread} studentMode={studentMode} />
+      <BottomNav
+        tab={tab}
+        setTab={setTab}
+        unreadCount={totalUnread}
+        studentMode={studentMode}
+        // Chat threads are meant to be a full-screen experience, same as
+        // WhatsApp/Instagram — the tab bar has no business showing while
+        // one's open. This used to happen only as an accidental side
+        // effect: BottomNav is a plain position:fixed; bottom:0 element
+        // with no keyboard-awareness of its own, so it was masked simply
+        // because the on-screen keyboard physically covered that part of
+        // the screen almost the entire time a thread was open (composing
+        // a message keeps the keyboard up). That's not a real fix — it
+        // only "worked" while the keyboard happened to be up, and broke
+        // the moment keyboard-height detection changed at all (mobile
+        // browser vs. native app, this session's Capacitor plugin work,
+        // etc.). Hiding it explicitly, keyed off whether a conversation
+        // is actually open (activeConversationId, already tracked at this
+        // level via onActiveConversationChange below), doesn't depend on
+        // keyboard state or platform at all.
+        hidden={tab === "messages" && Boolean(activeConversationId)}
+      />
       <TabletBottomNav tab={tab} setTab={setTab} unreadCount={totalUnread} studentMode={studentMode} />
 
       <AppOverlays

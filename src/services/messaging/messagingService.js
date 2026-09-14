@@ -27,6 +27,8 @@ function generateClientKey() {
 export const messagingService = {
   getConversations: (userId, options) => activeProvider.getConversations(userId, options),
   getConversation: (conversationId, userId) => activeProvider.getConversation(conversationId, userId),
+  getMessagesSince: (conversationId, userId, cursor, otherParticipantId) =>
+    activeProvider.getMessagesSince(conversationId, userId, cursor, otherParticipantId),
   sendMessage: (conversationId, message) => activeProvider.sendMessage(conversationId, message),
   subscribeToMessages: (conversationId, callback) => activeProvider.subscribeToMessages(conversationId, callback),
   sendTypingSignal: (conversationId, isTyping) => activeProvider.sendTypingSignal(conversationId, isTyping),

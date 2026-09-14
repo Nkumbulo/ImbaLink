@@ -95,6 +95,7 @@ export default function MessageThreadView({
     notifyTypingStopped={notifyTypingStopped}
     setInputValue={setInputValue}
     setIsInputFocused={setIsInputFocused}
+    scrollContainerRef={scrollContainerRef}
   />
 
 </div>

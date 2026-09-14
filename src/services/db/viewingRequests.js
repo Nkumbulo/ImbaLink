@@ -44,6 +44,37 @@ export async function requestViewing(propertyId) {
         'Run backend/999-messaging-production-fix.sql in the Supabase SQL Editor, then try again.'
       );
     }
+    // 42703 ("column ... does not exist") is a schema-migration gap of a
+    // different, subtler kind than the one above: the RPC itself exists
+    // (so PGRST202 doesn't fire), but its body references a column a
+    // later migration added and an earlier one didn't get run for. That
+    // was a real, reproduced failure with 1004-request-viewing-property-
+    // linkage.sql on a project that had skipped 050-viewing-request-
+    // workflow.sql — plpgsql doesn't validate embedded SQL until the
+    // function actually runs, so it wasn't caught until this call site.
+    // Falling through to the generic "queued for retry" branch below
+    // would silently pretend the request succeeded (the caller navigates
+    // to the conversation as normal) while NOTHING was ever sent — a
+    // permanent SQL error masquerading as an offline queue, which only
+    // ever resolves itself once the schema is actually fixed. Surface it
+    // instead of hiding it.
+    if (error.code === '42703' || /column .* does not exist/i.test(error.message || '')) {
+      throw new Error(
+        'The messaging database schema is out of date on this Supabase project ' +
+        '(missing a column a recent migration expects). Run the latest backend/*.sql ' +
+        'migrations in the Supabase SQL Editor, then try again.'
+      );
+    }
+    // Only a genuine connectivity failure should fall through to
+    // "queued for retry" — an RPC that errors while the browser reports
+    // itself online is a real server-side rejection (bad input, RLS,
+    // a schema problem not covered above), not a dropped connection, and
+    // treating it as queued would silently swallow it the same way.
+    const looksOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+    const looksLikeNetworkFailure = /network|fetch failed|failed to fetch/i.test(error.message || '');
+    if (!looksOffline && !looksLikeNetworkFailure) {
+      throw new Error(error.message || "Couldn't send your viewing request. Please try again.");
+    }
     console.warn('Viewing request sync failed; queued for retry:', error.message);
     return { ok: true, queued: true, conversationId: null, messageId: null };
   }
@@ -102,18 +133,22 @@ export async function findConversationWith(otherUserId) {
   return data || null;
 }
 
+// Returns { status, updatedAt } rather than a bare status string — updatedAt
+// (viewing_requests.updated_at, set server-side by respond_to_viewing_request
+// on every transition) is what lets the UI show "viewing completed on <date>"
+// once a request resolves, without re-deriving a date from anywhere else.
 export async function getViewingRequestStatus(propertyId, requesterUserId) {
   const key = String(propertyId || '').trim();
   const requester = String(requesterUserId || '').trim();
   if (!key || !requester) return null;
   const { data, error } = await supabase
     .from('viewing_requests')
-    .select('status')
+    .select('status, updated_at')
     .eq('property_id', key)
     .eq('user_id', requester)
     .maybeSingle();
   if (error || !data) return null;
-  return data.status;
+  return { status: data.status, updatedAt: data.updated_at || null };
 }
 
 // Incoming viewing requests on the CALLER's own listings. Previously,
@@ -181,6 +216,7 @@ export function subscribeViewingRequestStatuses({ propertyIds = [], requesterIds
         propertyId: String(row.property_id),
         requesterId: String(row.user_id),
         status: payload.eventType === 'DELETE' ? null : row.status,
+        updatedAt: payload.eventType === 'DELETE' ? null : (row.updated_at || null),
       });
     })
     .subscribe();

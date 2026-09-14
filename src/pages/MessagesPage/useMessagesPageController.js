@@ -214,6 +214,7 @@ export function useMessagesPageController({
     viewingRequestStatus,
     viewingRequestStatuses,
     getViewingRequestStatus,
+    getViewingRequestResolvedAt,
     viewingRequestBusy,
     viewingRequestBusyKey,
     isPropertyOwner,
@@ -237,9 +238,10 @@ export function useMessagesPageController({
       properties,
       currentProperty,
       getViewingRequestStatus,
+      getViewingRequestResolvedAt,
       viewingRequestBusyKey,
     }),
-    [rawMessages, currentUserId, properties, currentProperty, getViewingRequestStatus, viewingRequestBusyKey]
+    [rawMessages, currentUserId, properties, currentProperty, getViewingRequestStatus, getViewingRequestResolvedAt, viewingRequestBusyKey]
   );
 
   // "Online" / "Online N hours ago" shown under the contact's name — the
