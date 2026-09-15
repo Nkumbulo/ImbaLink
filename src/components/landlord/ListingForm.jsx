@@ -52,12 +52,12 @@ export default function ListingForm({ onClose, onCreate, onUpdate, listing }) {
       // mutations.js). This still shows if every retry for a given photo
       // is exhausted, or for a genuinely non-retryable problem (offline,
       // a missing local photo, a real server rejection).
-      const code = String(submitError?.message || "");
+      const code = String(submitError?.message || submitError || ""); console.error("[ListingForm] submit failed:", submitError);
       let friendly = isEditing ? "We couldn't save your changes right now." : "We couldn't submit your listing right now.";
       if (/PHOTO.*REQUIRED/i.test(code)) friendly = "Please add at least one photo before trying again.";
       else if (/UNAVAILABLE/i.test(code)) friendly = "One of your photos is no longer available. Please add that photo again, then try again.";
       else if (/OFFLINE|network|fetch|timeout|timed out/i.test(code)) friendly = "You're offline or the connection is taking too long. Check your connection and try again.";
-      setError(friendly);
+      setError(friendly + (code ? " [debug: " + code.Substring(0, [Math]::Min(160, $code.Length)) + "]" : ""));
     } finally { submittingRef.current = false; setSubmitting(false); setProgress(null); }
   };
 
