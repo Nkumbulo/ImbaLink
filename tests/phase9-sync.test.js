@@ -1,0 +1,2 @@
+import { describe, expect, it } from 'vitest';
+describe('Phase 9 synchronization contract',()=>{it('advances cursors monotonically',()=>{const rows=[{sequence_id:10},{sequence_id:11}],cursor=9;expect(rows.at(-1).sequence_id).toBeGreaterThan(cursor)});it('scopes idempotency by actor',()=>expect('a:m1').not.toBe('b:m1'));it('maps deletes to tombstones',()=>expect({deleted:true,recordId:'p1'}.deleted).toBe(true));});

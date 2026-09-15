@@ -1,0 +1,5 @@
+[functions.business-auth]
+verify_jwt = false
+
+[functions.migrate-business-passwords]
+verify_jwt = false

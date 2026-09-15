@@ -1,0 +1,1 @@
+export { invalidatePropertyCache, readPropertySaveCounts, readSinglePropertySaveCount, subscribeToPropertyFeed, _ensureData, getProperties, getSimilarProperties, getPropertyById, getPropertiesByIds } from '../../../core/data/adapters/properties';
