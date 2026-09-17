@@ -1,4 +1,3 @@
-import React from "react";
 import { T } from "../../styles/tokens";
 
 export default function RoommateFinderStyles() {

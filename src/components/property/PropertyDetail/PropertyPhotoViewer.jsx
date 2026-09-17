@@ -1,4 +1,3 @@
-import React from "react";
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
 import { MIN_ZOOM, MAX_ZOOM } from "./zoomConstants";
 

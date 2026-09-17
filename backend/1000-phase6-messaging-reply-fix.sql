@@ -41,7 +41,7 @@ AS $$
 -- function body — colliding with the real `id`/`conversation_id` columns on
 -- `conversations`/`messages`. This pragma is the same fix already applied for
 -- the identical collision elsewhere in the messaging RPCs (see
--- 999-messaging-final-fix.sql / 999-messaging-production-fix.sql) — it was
+-- 999-messaging-production-fix.sql) — it was
 -- dropped when this function was rewritten for the bidirectional-reply fix,
 -- which is what let `UPDATE public.conversations ... WHERE id = ...` below
 -- start raising "column reference "id" is ambiguous" (42702) again. The

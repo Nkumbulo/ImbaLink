@@ -1,4 +1,3 @@
-import React from "react";
 import { T } from "../../styles/tokens";
 import PostCard from "../../components/property/PostCard";
 import GridTile from "../../components/property/GridTile";

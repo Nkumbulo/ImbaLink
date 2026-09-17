@@ -98,7 +98,7 @@ async function bootstrap() {
   try {
     const { value } = await Preferences.get({ key: 'imbalink-theme' });
     if (value && THEMES[value] && value !== 'classic') applyStartupTheme(value);
-  } catch {}
+  } catch { /* theme preference is a cosmetic best-effort read */ }
 }
 
 void bootstrap();

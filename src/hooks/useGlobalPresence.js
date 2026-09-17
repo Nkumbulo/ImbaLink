@@ -12,7 +12,7 @@ async function heartbeat() {
   if (typeof navigator !== "undefined" && navigator.onLine === false) return;
   try {
     await heartbeatPresence();
-  } catch {}
+  } catch { /* a missed heartbeat is not fatal; the next tick retries */ }
 }
 
 function startShared() {

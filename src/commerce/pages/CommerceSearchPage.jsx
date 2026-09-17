@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import CommerceExploreView from "../components/CommerceExploreView";
 import CommerceMarketplaceGrid from "../components/CommerceMarketplaceGrid";

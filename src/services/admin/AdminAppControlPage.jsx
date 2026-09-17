@@ -1,4 +1,4 @@
-import React,{useEffect,useState} from "react";
+import {useEffect,useState} from "react";
 import {Palette,Save,Megaphone,Settings2,Plus,Power,Trash2} from "lucide-react";
 import {getBroadcasts,getCommandSettings,saveBroadcast,saveCommandSetting} from "./adminCommandCenter";
 const defaults={app_name:"ImbaLink",support_email:"",support_phone:"",primary_color:"#2f7a55",secondary_color:"#14201a",logo_url:"",favicon_url:"",theme_mode:"light",border_radius:12,font:"Inter",maintenance_mode:false,maintenance_message:"We are carrying out scheduled maintenance.",allow_registrations:true,commission_percent:5,featured_listing_price:10,max_images:15};

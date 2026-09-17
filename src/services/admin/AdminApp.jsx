@@ -1,4 +1,4 @@
-import React,{useEffect,useState} from "react";
+import {useEffect,useState} from "react";
 import useAdminAuthorization from "../../hooks/useAdminAuthorization";
 import AdminShell from "../../components/admin/AdminShell";
 import AdminDashboardPage from "./AdminDashboardPage";

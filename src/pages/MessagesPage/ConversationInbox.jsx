@@ -1,4 +1,3 @@
-import React from "react";
 import { T } from "../../styles/tokens";
 import Avatar from "../../components/common/Avatar";
 import { Wrench, MessageCircle, Loader2 } from "lucide-react";

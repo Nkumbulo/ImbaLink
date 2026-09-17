@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { Bed, MapPin, Zap, Droplets, Car, ShieldCheck, HomeIcon, Check, Users, MessageCircle } from "lucide-react";
 import { T } from "../../styles/tokens";
 import Avatar from "../common/Avatar";

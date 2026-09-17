@@ -71,7 +71,7 @@ export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit 
         setProperties(Array.isArray(cached.value.data) ? cached.value.data : []);
         setHasMore(Boolean(cached.value.hasMore));
       }
-    } catch {}
+    } catch { /* best-effort cache read; live fetch below is authoritative */ }
 
     if (cached?.hasCache && !cached.stale) return;
     try {

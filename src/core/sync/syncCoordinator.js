@@ -62,7 +62,7 @@ export function startSyncCoordinator() {
     channel.onmessage = (event) => {
       if (event?.data?.type === 'sync-status') {
         lastStatus = { ...lastStatus, ...event.data.status };
-        listeners.forEach((listener) => { try { listener(lastStatus); } catch {} });
+        listeners.forEach((listener) => { try { listener(lastStatus); } catch { /* a listener throwing must not break broadcasting to the others */ } });
       }
       if (event?.data?.type === 'sync-request') run('other-tab').catch(() => {});
     };

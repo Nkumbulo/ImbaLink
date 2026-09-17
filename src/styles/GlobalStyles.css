@@ -1131,7 +1131,7 @@
       }
     }
 
-/* debug.noveatech — shared Property/Marketplace face transition.  The shell
+/* Shared Property/Marketplace face transition.  The shell
    stays mounted while the active face changes, so navigation, auth, messaging
    and cached state do not restart during a mode switch. */
 .app-main-shell[data-imbalink-mode] {

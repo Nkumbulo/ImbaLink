@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getModerationRecords } from "../../services/admin/adminModeration";
 import { StatusBadge } from "../../components/admin/AdminDataTable";
 import useAdminRealtime from "../../hooks/useAdminRealtime";

@@ -1,4 +1,3 @@
-import React from "react";
 import { demoProducts } from "../commerceData.json";
 import CommerceCard from "./CommerceCard";
 

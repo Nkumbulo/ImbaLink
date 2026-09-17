@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getContractors } from '../../../core/data/domains/interactions.js';
-import { getUserProfile, getUserState, saveUserState } from '../../../core/data/domains/profile.js';
+import { getUserProfile } from '../../../core/data/domains/profile.js';
+import { getUserState, saveUserState } from '../../../core/data/domains/session.js';
 import { getLandlordListings, getPropertyRecommendationProfile } from '../../../core/data/domains/properties.js';
 import { getContractorRegistrations, getLandlordRegistration, getProRegistration } from '../../../core/data/domains/registrations.js';
 import { localCache } from '../../../core/cache';
@@ -61,7 +62,7 @@ export function useDatabaseAccountState(userId) {
           setViewingRequested(state.viewingRequested || {});
           setHydrated(true);
         }
-      } catch {}
+      } catch { /* best-effort hydration; UI already has safe defaults */ }
 
       try {
         const [profile, listings, contractorData, userState, contractorRegs, landlordReg, proReg, recommendationData] = await Promise.all([

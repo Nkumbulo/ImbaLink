@@ -1,4 +1,3 @@
-import React from "react";
 import { Heart } from "lucide-react";
 import { demoProducts } from "../commerceData.json";
 import CommerceCard from "../components/CommerceCard";

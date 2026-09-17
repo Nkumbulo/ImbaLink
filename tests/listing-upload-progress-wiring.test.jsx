@@ -11,7 +11,6 @@
 // and silently dropped the `{ onProgress }` options object, so the API's
 // onProgress callback was always undefined and the bar never moved off its
 // initial 0% until the promise settled and the bar was removed.
-import React from 'react';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';

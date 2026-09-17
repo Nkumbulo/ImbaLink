@@ -1,5 +1,5 @@
 
-import React,{useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {LayoutDashboard,Users,Building2,GraduationCap,HardHat,Flag,ShieldCheck,Activity,BarChart3,Settings,LogOut,ChevronDown,Shield,Receipt,ScrollText,Megaphone} from "lucide-react";
 import {supabase} from "../../core/supabase/client";
 const items=[

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef } from "react";
 import { ShieldAlert } from "lucide-react";
 import { T } from "../styles/tokens";
 import "./RoommateFinderPage.css";

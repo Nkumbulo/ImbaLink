@@ -69,10 +69,10 @@ export async function prepareNotificationExperience() {
   if (Capacitor.isNativePlatform()) {
     try {
       await LocalNotifications.requestPermissions();
-    } catch {}
+    } catch { /* permission prompt is best-effort; notifications simply stay off if declined */ }
     try {
       await PushNotifications.requestPermissions();
-    } catch {}
+    } catch { /* permission prompt is best-effort; notifications simply stay off if declined */ }
   } else {
     await requestDesktopNotificationPermission();
   }
@@ -102,7 +102,7 @@ async function playWebSound(filename) {
     oscillator.connect(gain).connect(audioContext.destination);
     oscillator.start();
     oscillator.stop(audioContext.currentTime + 0.2);
-  } catch {}
+  } catch { /* audio cue is non-critical; a failed beep should never break notifications */ }
 }
 
 export async function notifyUser(notification) {
@@ -138,7 +138,7 @@ export async function notifyUser(notification) {
     try {
       const n = new Notification(title, { body, tag: String(notification.id || "imbalink") });
       n.onclick = () => window.focus();
-    } catch {}
+    } catch { /* browser Notification API is best-effort; a failure here is not actionable */ }
   }
 }
 

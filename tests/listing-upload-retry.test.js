@@ -13,16 +13,18 @@ vi.mock('../src/services/media/imageStore.js', () => ({
   deleteMedia: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('../src/services/db/shared/identity.js', () => ({
+vi.mock('../src/core/data/implementations/shared/identity.js', () => ({
   requireUser: () => 'owner-1',
   requireCurrentUserId: () => 'owner-1',
+  activeUserKey: () => 'owner-1',
+  setActiveUser: () => {},
 }));
 
-vi.mock('../src/services/db/shared/publicProfiles.js', () => ({
+vi.mock('../src/core/data/implementations/shared/publicProfiles.js', () => ({
   readPublicUserProfiles: vi.fn().mockResolvedValue(new Map()),
 }));
 
-vi.mock('../src/services/db/properties/queries.js', () => ({
+vi.mock('../src/core/data/implementations/properties/queries.js', () => ({
   invalidatePropertyCache: vi.fn(),
   readPropertySaveCounts: vi.fn().mockResolvedValue(new Map()),
 }));

@@ -25,10 +25,13 @@ describe('Phase 12 production hardening contracts', () => {
   });
 
   it('does not perform direct relation writes when the API backend is enabled', () => {
-    const contractors = read('src/services/db/contractors.js');
-    const students = read('src/services/db/students.js');
+    // These paths are compatibility shims now (see "Legacy compatibility
+    // shim" comment in each) — the real guard logic this test checks for
+    // lives in the core/data implementation files they forward to.
+    const contractors = read('src/core/data/implementations/interactions/contractors.js');
+    const students = read('src/core/data/implementations/students/students.js');
     expect(contractors).toContain('if (import.meta.env?.VITE_API_BASE_URL) return;');
-    const listings = read('src/services/db/properties/mutations.js');
+    const listings = read('src/core/data/implementations/properties/mutations.js');
     expect(listings).toContain('if (import.meta.env?.VITE_API_BASE_URL) {');
     expect(students).toContain('operation: \'studentInterest.set\'');
     expect(students).toContain('if (import.meta.env?.VITE_API_BASE_URL) return;');

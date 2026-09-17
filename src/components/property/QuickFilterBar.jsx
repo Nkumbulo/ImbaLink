@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ArrowUpDown, RotateCcw, Check, MapPin } from "lucide-react";
 import { T } from "../../styles/tokens";
 import { getPropertyTypes, getPriceCeiling, getSuburbs } from "../../utils/propertyHelpers";

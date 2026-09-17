@@ -1,4 +1,3 @@
-import React from "react";
 import { Check, X } from "lucide-react";
 import { T } from "../../styles/tokens";
 import { PREFERENCE_TAGS } from "../../utils/studentHelpers";

@@ -1,5 +1,5 @@
-/** Infrastructure adapter: cross-domain interaction persistence. */
-export * from '../../../services/db/contractors';
-export * from '../../../services/db/viewingRequests';
-export * from '../../../services/db/reports';
-export * from '../../../services/db/enquiries';
+/** Infrastructure adapter: canonical cross-domain interaction boundary. */
+export * from '../implementations/interactions/contractors';
+export * from './viewingRequests';
+export * from './reports';
+export * from './enquiries';

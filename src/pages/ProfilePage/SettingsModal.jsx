@@ -87,7 +87,7 @@ export default function SettingsModal({
         const audio = new Audio(`/sounds/${selected.file}`);
         audio.volume = 0.8;
         await audio.play();
-      } catch {}
+      } catch { /* sound preview is non-critical; a blocked/failed play is fine to ignore */ }
     }
     setNotice("Notification tone selected.");
   };

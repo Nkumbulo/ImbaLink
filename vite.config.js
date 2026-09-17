@@ -9,5 +9,19 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        // Splits stable, rarely-changing third-party code out of the main
+        // app chunk so browsers can cache it across deploys instead of
+        // re-downloading it every time app code changes. Pure build-output
+        // grouping — does not change what loads eagerly vs lazily, or any
+        // app behavior.
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-icons': ['lucide-react'],
+        },
+      },
+    },
   },
 });

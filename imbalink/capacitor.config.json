@@ -1,0 +1,11 @@
+{
+  "appId": "com.imbalink.app",
+  "appName": "ImbaLink",
+  "webDir": "dist",
+  "plugins": {
+    "Keyboard": {
+      "resize": "none",
+      "resizeOnFullScreen": false
+    }
+  }
+}

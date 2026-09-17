@@ -12,7 +12,8 @@
     "audit": "npm audit --audit-level=high",
     "check:architecture": "node scripts/check-architecture.mjs",
     "verify": "npm run check:imports && npm run check:architecture && npm test && npm run build",
-    "check:imports": "node scripts/check-imports.mjs"
+    "check:imports": "node scripts/check-imports.mjs",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@capacitor-community/sqlite": "^7.0.0",
@@ -31,8 +32,13 @@
     "react-leaflet": "^4.2.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@testcontainers/postgresql": "^11.5.1",
     "autoprefixer": "^10.4.20",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.12.0",
     "jsdom": "^30.0.1",
     "pg": "^8.13.1",
     "postcss": "^8.4.49",

@@ -1,4 +1,3 @@
-import React from "react";
 import RoommateFindAModal from "./RoommateFindAModal";
 import RoommateCandidateModal from "./RoommateCandidateModal";
 import RoommateRequesterModal from "./RoommateRequesterModal";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ArrowUpDown, Check, RotateCcw, Search, ShieldCheck, X } from "lucide-react";
 import { T } from "../../styles/tokens";
 import { demoProducts } from "../commerceData.json";

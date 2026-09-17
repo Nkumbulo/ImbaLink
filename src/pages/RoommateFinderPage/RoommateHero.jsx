@@ -1,4 +1,3 @@
-import React from "react";
 import { ArrowLeft, Search, Play, Users } from "lucide-react";
 import AccommodationNetworkAnimation from "../../components/property/AccommodationNetworkAnimation";
 import { ROOMMATE_TUTORIAL_VIDEO_ID } from "./helpers";

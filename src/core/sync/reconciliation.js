@@ -1,4 +1,4 @@
-import { idbGet, idbPut, idbDelete } from '../infrastructure/indexeddb';
+import { idbGet, idbGetAll, idbPut, idbDelete } from '../infrastructure/indexeddb';
 import { chooseNewer } from './conflict';
 
 const STORE_BY_OPERATION = {

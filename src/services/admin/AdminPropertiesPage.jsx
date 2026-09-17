@@ -1,4 +1,4 @@
-import React,{useEffect,useState} from "react";
+import {useEffect,useState} from "react";
 import {Check,Eye,Flag,RefreshCw,Star,Trash2,X} from "lucide-react";
 import {getCommandProperties,propertyAction,updateProperty} from "./adminCommandCenter";
 import useAdminRealtime from "../../hooks/useAdminRealtime";

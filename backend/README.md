@@ -227,6 +227,26 @@ gets their own conversation with the landlord, rather than every tenant
 landing in one shared thread. See `ensure_property_conversation()` and
 `request_property_viewing()` in `999-messaging-production-fix.sql`.
 
+### Migrations 038–054 (previously undocumented in this list)
+- `038-rls-communication-fix.sql` repairs row-level-security policies for authenticated self-owned data (run after `schema.sql` / `002-app-alignment.sql` / `google-auth.sql`).
+- `039-public-listing-visibility-fix.sql` fixes the `properties_read` policy so public/anon visibility rules match the intended verification-status logic.
+- `040-listing-photo-storage-hardening.sql` (re)configures the `property-images` Storage bucket: public read, 10MB limit, JPEG/PNG/WebP only.
+- `041-public-landlord-listings-gallery.sql` — public listing + complete gallery contract: a landlord listing and its gallery/Storage objects are public-readable unless flagged/rejected.
+- `042-admin-property-image-review.sql` gives admins photo review/deletion on landlord listings; reads stay public, deletion is admin-only.
+- `044-landlord-listing-pause.sql` lets a landlord temporarily pause a listing without deleting it; paused listings stay visible so tenants understand why.
+- `045-property-recommendations.sql` — recommendation signals; the Link button is an explicit "show me more like this" signal, not a save.
+- `047-viewing-request-assistant-messages.sql` replaces participant decline/cancellation messages with a green ImbaLink-assistant chat bubble rendered by the UI.
+- `048-viewing-request-realtime.sql` guarantees viewing-request status changes are delivered through Supabase Realtime so an open tenant chat updates promptly.
+- `049-viewing-request-notification-sync.sql` — real, persisted ImbaLink Assistant messages for viewing-request decline/cancellation, synced live to both tenant and landlord.
+- `050-viewing-request-workflow.sql` — viewing-request workflow with the database as source of truth: dedicated fields, atomic authorized status transitions (including landlord cancellation), one assistant message per (request, status), re-request after declined/cancelled/completed. Run after `049`.
+- `053-reset-notification-history.sql` *(renumbered from `050-reset-notification-history.sql` — that number collided with `050-viewing-request-workflow.sql` above; this migration has no ordering dependency, so it was the one moved)* lets an authenticated user permanently clear their own notification history via `reset_all_notifications()`.
+- `054-support-requests.sql` *(renumbered from `041-support-requests.sql` — collided with `041-public-landlord-listings-gallery.sql` above; this one was moved since it's a self-contained new table with no ordering dependency)* creates the `support_requests` inbox for app-wide bug/safety/support reports.
+
+Note: `999-messaging-final-fix.sql` has been removed — it was byte-identical
+to `999-messaging-production-fix.sql` (confirmed via diff) and was never
+referenced anywhere in this README or the app; keeping two files claiming the
+same "999" slot was pure duplication, not two different fixes.
+
 ### Legal documents
 - `051-legal-documents.sql` creates the published legal-document store with public read access only for published documents.
 - `052-publish-terms-template.sql` publishes the approved Terms & Conditions after the reviewed text has been pasted into the template.

@@ -1,4 +1,3 @@
-import React from "react";
 import { ChevronLeft, Heart, Bookmark, Maximize2, Minimize2, X, Share2, Flag, ZoomIn, ImageOff, Loader2 } from "lucide-react";
 import { T } from "../../styles/tokens";
 import VerifiedBadge from "../common/VerifiedBadge";

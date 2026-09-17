@@ -1,3 +1,2 @@
-// Compatibility facade for older imports. The canonical implementation lives
-// in the core data domain so UI code does not depend on the legacy db folder.
-export { getPublishedLegalDocument } from '../../core/data/domains/legalDocuments';
+/** Legacy compatibility shim. Canonical legal-document API lives under core/data. */
+export * from '../../core/data/domains/legalDocuments';

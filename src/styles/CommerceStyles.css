@@ -292,14 +292,14 @@
   .commerce-home-face .commerce-details-button { padding:0 15px; }
 }
 
-/* debug.noveatech — V5 mobile dashboard visibility correction.
+/* V5 mobile dashboard visibility correction.
    Keep the full Property-style discovery dashboard on mobile; desktop is listing-only. */
 .commerce-mobile-dashboard { display: none; }
 @media (max-width: 767px) {
   .commerce-mobile-dashboard { display: block; }
 }
 
-/* debug.noveatech — Imba2 V4 homepage mode correction.
+/* Imba2 V4 homepage mode correction.
    Mobile retains the Marketplace discovery/dashboard layer; desktop is listing-only.
    Header controls use fixed dimensions so switching faces cannot shrink the wordmark. */
 .commerce-home-face .commerce-home-header {
@@ -383,7 +383,7 @@
   .commerce-home-face .commerce-mobile-dashboard { display:none !important; }
 }
 
-/* debug.noveatech — V7: keep the Marketplace mobile discovery/dashboard composition aligned with Property Home.
+/* V7: keep the Marketplace mobile discovery/dashboard composition aligned with Property Home.
    Desktop intentionally remains listing-only. The lower duplicate Filter control is removed in JSX. */
 @media (max-width: 767px) {
   .commerce-home-face .commerce-mobile-dashboard {
@@ -462,7 +462,7 @@
   .commerce-home-face .commerce-mobile-dashboard { display:none !important; }
 }
 
-/* debug.noveatech — V8: keep the Shop mobile hero safely below the fixed/sticky mode header,
+/* V8: keep the Shop mobile hero safely below the fixed/sticky mode header,
    make the quick-filter row consume its full width, and keep verification visible as Pending. */
 @media (max-width: 767px) {
   .commerce-home-face .commerce-home-header {
@@ -501,7 +501,7 @@
   opacity: .78;
 }
 
-/* debug.noveatech — V9: align Shop Home geometry with Property Home and give the animated hero its own breathing room. */
+/* V9: align Shop Home geometry with Property Home and give the animated hero its own breathing room. */
 @media (max-width: 767px) {
   .commerce-home-face .commerce-mobile-dashboard {
     border: 0 !important;
@@ -586,7 +586,7 @@
 }
 
 
-/* debug.noveatech — V11 premium feed alignment.
+/* V11 premium feed alignment.
    Match Property Home's feed geometry while using a Fibonacci spacing scale
    (8, 13, 21, 34, 55px) for a calmer visual rhythm. */
 :root { --imba2-f8:8px; --imba2-f13:13px; --imba2-f21:21px; --imba2-f34:34px; --imba2-f55:55px; }

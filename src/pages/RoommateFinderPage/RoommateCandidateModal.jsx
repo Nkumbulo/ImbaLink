@@ -1,7 +1,7 @@
-import React from "react";
 import { ArrowRight, Check, Flag, MessageCircle, X } from "lucide-react";
 import { T } from "../../styles/tokens";
 import { propertyPhoto } from "./helpers";
+import Avatar from "../../components/common/Avatar";
 import { VerificationBadge } from "./VerificationBadge";
 
 export default function RoommateCandidateModal({ selected, setSelectedId, openMessage, showToast, onFindRoommate, interested, toggleInterested, setTab }) {

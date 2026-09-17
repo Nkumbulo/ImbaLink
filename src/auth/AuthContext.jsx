@@ -1,5 +1,5 @@
-import { setActiveUser } from '../core/data/domains/profile.js';
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
+import { setActiveUser } from '../core/data/domains/account.js';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "../core/supabase/client";
 import { supabaseAuthProvider } from "./supabaseAuthProvider";
 import { setAuthTokenProvider } from "../core/infrastructure/apiClient";

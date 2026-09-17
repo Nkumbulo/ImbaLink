@@ -32,7 +32,7 @@ export function useConversations(userId) {
         // round-trip on every tab switch/open.
         setLoading(false);
       }
-    } catch {}
+    } catch { /* best-effort; conversation list stays whatever it last was */ }
 
     if (!force && cached?.hasCache && !cached.stale) return;
 

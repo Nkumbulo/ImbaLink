@@ -1,4 +1,3 @@
-import React from "react";
 import useMediaQuery from "../hooks/useMediaQuery";
 import { T } from "../styles/tokens";
 import { getStudentPageStyles } from "./StudentPage/studentPageStyles";

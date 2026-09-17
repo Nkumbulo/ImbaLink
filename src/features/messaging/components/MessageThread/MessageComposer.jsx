@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Send } from "lucide-react";
 import { T } from "../../../../styles/tokens";
 import { scrollToRealBottom } from "../../utils/scrollToBottom";

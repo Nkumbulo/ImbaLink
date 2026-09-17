@@ -1,5 +1,4 @@
 
-import React from "react";
 export function StatusBadge({value}){const v=String(value||"unknown").toLowerCase().replace(/\s+/g,"-");return <span className={`admin-status ${v}`}>{String(value||"Unknown").replace(/_/g," ")}</span>}
 export default function AdminDataTable({title,subtitle,search,onSearch,filters,loading,total=0,page=0,onPageChange,children}) {
  const pageSize=50, pages=Math.max(1,Math.ceil(total/pageSize));

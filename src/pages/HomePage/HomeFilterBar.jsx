@@ -1,4 +1,3 @@
-import React from "react";
 import { ChevronDown, SlidersHorizontal, ArrowUpDown, Check, RotateCcw, MapPin, Home, DollarSign, BedDouble } from "lucide-react";
 import { T } from "../../styles/tokens";
 import ToggleSwitch from "../../components/common/ToggleSwitch";

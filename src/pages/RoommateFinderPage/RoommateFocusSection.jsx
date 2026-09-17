@@ -1,4 +1,3 @@
-import React from "react";
 import { ArrowLeft, ArrowRight, Check, LayoutGrid, MapPin, MessageCircle, Square, X } from "lucide-react";
 import { T } from "../../styles/tokens";
 import Avatar from "../../components/common/Avatar";

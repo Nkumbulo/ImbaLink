@@ -138,7 +138,7 @@ export function useConversationMessages(conversationId, userId) {
             setLoading(false);
           }
         }
-      } catch {}
+      } catch { /* best-effort cache/metadata warm-up; live fetch below is authoritative */ }
 
       // Even with a fresh message cache, resolve the conversation metadata in
       // the background. The cached thread paints first; this request only

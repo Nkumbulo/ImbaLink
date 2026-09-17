@@ -1,4 +1,3 @@
-import React from "react";
 import { MapPin, MessageCircle, ShieldCheck, X } from "lucide-react";
 import VerifiedBadge from "../../components/common/VerifiedBadge";
 
