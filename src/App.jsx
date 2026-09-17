@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { T } from "./styles/tokens";
 import GlobalStyles from "./styles/GlobalStyles";
 import BottomNav from "./layouts/BottomNav";
@@ -16,6 +16,7 @@ import DesktopSidebar from "./App/DesktopSidebar";
 import AdminLoginPage from "./services/admin/AdminLoginPage";
 import AdminApp from "./services/admin/AdminApp";
 import "./styles/AdminStyles.css";
+import "./styles/CommerceStyles.css";
 import useAppNotifications from "./App/useAppNotifications";
 import useAppDerivedState from "./App/useAppDerivedState";
 import useAppNavigation from "./App/useAppNavigation";
@@ -27,6 +28,10 @@ import useAppPropertyActions from "./App/useAppPropertyActions";
 import useAppSessionState from "./App/useAppSessionState";
 
 function AppContent() {
+  const [appMode, setAppMode] = useState("property");
+  const [commerceSavedIds, setCommerceSavedIds] = useState(() => new Set());
+  const [followedSellers, setFollowedSellers] = useState(() => new Set());
+  const [commerceQuery, setCommerceQuery] = useState("");
   const { isAuthenticated, user, authLoading, needsProfile } = useAuth();
   const isOnline = useOnlineStatus();
   // Presence is intentionally NOT mounted here at the app shell. It is
@@ -44,6 +49,21 @@ function AppContent() {
     collectionsView, setCollectionsView, hubWelcome, setHubWelcome, showNotifications,
     setShowNotifications, viewingLister, setViewingLister, startupReady,
   } = useAppUiState();
+  const switchAppMode = () => {
+    setAppMode((current) => current === "property" ? "commerce" : "property");
+    setTab("home");
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  };
+  const toggleCommerceSave = (id) => setCommerceSavedIds((current) => {
+    const next = new Set(current); const key = String(id);
+    next.has(key) ? next.delete(key) : next.add(key);
+    return next;
+  });
+  const toggleFollowSeller = (seller) => setFollowedSellers((current) => {
+    const next = new Set(current); const key = String(seller);
+    next.has(key) ? next.delete(key) : next.add(key);
+    return next;
+  });
 
   const {
     loaded, hydrated, properties, saved, setSaved, liked, setLiked, threads, setThreads,
@@ -193,20 +213,24 @@ function AppContent() {
         {(!loaded || !startupReady) && <Splash />}
         {loaded && startupReady && (
           <div className="app-layout">
-            <DesktopSidebar tab={tab} setTab={setTab} unreadCount={totalUnread} studentMode={studentMode} />
+            <DesktopSidebar tab={tab} setTab={setTab} unreadCount={totalUnread} studentMode={studentMode} appMode={appMode} onSwitchMode={switchAppMode} />
             <div className="app-viewport">
               <ResponsiveTopbar
                 tab={tab}
+                appMode={appMode}
+                onSwitchMode={switchAppMode}
                 setTab={setTab}
                 city={city}
                 setShowCityPicker={setShowCityPicker}
                 query={query}
                 setQuery={setQuery}
+                commerceQuery={commerceQuery}
+                setCommerceQuery={setCommerceQuery}
                 user={userProfile || user}
                 unreadCount={totalUnread}
                 unreadNotifCount={unreadNotifCount}
                 onOpenNotifications={() => { prepareNotifications(); setShowNotifications(true); }}
-                showQuickFilters={(tab === "home" && !homeFilterBarVisible) || tab === "search"}
+                showQuickFilters={appMode !== "commerce" && ((tab === "home" && !homeFilterBarVisible) || tab === "search")}
                 quickFilterProperties={homeCityProperties}
                 filters={filters}
                 setFilters={setFilters}
@@ -214,10 +238,18 @@ function AppContent() {
                 setSort={setSort}
                 isOnline={isOnline}
               />
-              <div className={`min-h-screen overflow-y-auto app-main-shell page-${tab}`} style={{ background: T.paper }}>
+              <div className={`min-h-screen overflow-y-auto app-main-shell page-${tab} app-mode-${appMode}`} data-imbalink-mode={appMode} style={{ background: T.paper }}>
               <Suspense fallback={<Splash />}>
                 <AppPageContent
                   tab={tab}
+                  appMode={appMode}
+                  onSwitchMode={switchAppMode}
+                  commerceSavedIds={commerceSavedIds}
+                  onToggleCommerceSave={toggleCommerceSave}
+                  followedSellers={followedSellers}
+                  onToggleFollowSeller={toggleFollowSeller}
+                  commerceQuery={commerceQuery}
+                  onCommerceQueryChange={setCommerceQuery}
                   studentMode={studentMode}
                   properties={properties}
                   pinnedListingId={pinnedListingId}
@@ -311,6 +343,8 @@ function AppContent() {
       )}
 
       <BottomNav
+        appMode={appMode}
+        onSwitchMode={switchAppMode}
         tab={tab}
         setTab={setTab}
         unreadCount={totalUnread}
@@ -332,7 +366,7 @@ function AppContent() {
         // keyboard state or platform at all.
         hidden={tab === "messages" && Boolean(activeConversationId)}
       />
-      <TabletBottomNav tab={tab} setTab={setTab} unreadCount={totalUnread} studentMode={studentMode} />
+      <TabletBottomNav tab={tab} setTab={setTab} unreadCount={totalUnread} studentMode={studentMode} appMode={appMode} onSwitchMode={switchAppMode} />
 
       <AppOverlays
         showCityPicker={showCityPicker}

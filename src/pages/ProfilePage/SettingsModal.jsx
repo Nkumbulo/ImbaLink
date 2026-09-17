@@ -136,7 +136,7 @@ export default function SettingsModal({
 
         {view === "main" && (
           <div className="p-5 overflow-y-auto max-h-[calc(92vh-76px)] space-y-5">
-            <div className="rounded-2xl p-4" style={{ background: selectedTheme.id === "midnight" ? "rgba(255,255,255,.06)" : selectedTheme.soft, border: `1px solid ${selectedTheme.line}` }}>
+            <div className="rounded-2xl p-4" style={{ background: selectedTheme.soft, border: `1px solid ${selectedTheme.line}` }}>
               <div className="flex items-center gap-3">
                 <span className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: selectedTheme.color, color: selectedTheme.navText }}><Palette size={18} /></span>
                 <div className="flex-1"><div className="f-display font-semibold" style={{ color: T.ink, fontSize: 13 }}>Your ImbaLink</div><div className="f-body" style={{ color: T.ink60, fontSize: 10.5 }}>Everything important is in one place.</div></div>

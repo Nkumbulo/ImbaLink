@@ -60,6 +60,14 @@ export function useHomeFeedData({ properties, city, filters, sort, pinnedListing
     return sorted;
   }, [cityProperties, sort, pinnedListingId, recommendationProfile]);
 
+  // 1000 is the UI's '$1,000+' ceiling sentinel, so it must never hide properties above $1,000.
+  const activeMaxPrice = Number.isFinite(Number(filters?.maxPrice)) && Number(filters.maxPrice) < priceCeiling
+    ? Number(filters.maxPrice)
+    : null;
+  const activeMinPrice = Number.isFinite(Number(filters?.minPrice)) && Number(filters.minPrice) > 0
+    ? Number(filters.minPrice)
+    : null;
+
   const feed = useMemo(() => sortedCityProperties.filter((p) => {
     if (!p) return false;
     if (filters.type !== "All") {
@@ -67,8 +75,8 @@ export function useHomeFeedData({ properties, city, filters, sort, pinnedListing
       if (!typeValue.includes(filters.type.toLowerCase())) return false;
     }
     if (filters.verifiedOnly && !isPropertyVerified(p)) return false;
-    if (filters.maxPrice != null && Number(p.rent) > Number(filters.maxPrice)) return false;
-    if (filters.minPrice != null && Number(p.rent) < Number(filters.minPrice)) return false;
+    if (activeMaxPrice != null && Number(p.rent) > activeMaxPrice) return false;
+    if (activeMinPrice != null && Number(p.rent) < activeMinPrice) return false;
     if (filters.beds && filters.beds !== "Any") {
       const min = filters.beds === "5+" ? 5 : Number(filters.beds);
       const beds = bedsOf(p);
@@ -91,7 +99,7 @@ export function useHomeFeedData({ properties, city, filters, sort, pinnedListing
       if (!filters.amenities.every((a) => propAmenities.includes(a))) return false;
     }
     return true;
-  }), [sortedCityProperties, filters]);
+  }), [sortedCityProperties, filters, activeMaxPrice, activeMinPrice]);
 
   return { cityProperties, propertyTypes, priceCeiling, sortedCityProperties, feed };
 }

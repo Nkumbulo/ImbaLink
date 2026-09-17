@@ -40,6 +40,7 @@ function resolveLocal(from, specifier) {
     `${base}.js`,
     `${base}.jsx`,
     `${base}.mjs`,
+    `${base}.json`,
     path.join(base, "index.js"),
     path.join(base, "index.jsx"),
   ];

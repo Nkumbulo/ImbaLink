@@ -12,9 +12,21 @@ const AgentHubPage = lazy(() => import("../pages/agent/AgentHubPage"));
 const PerformanceTrendsPage = lazy(() => import("../pages/agent/PerformanceTrendsPage"));
 const CompanyHubPage = lazy(() => import("../pages/company/CompanyHubPage"));
 const AdminPage = lazy(() => import("../pages/AdminPage"));
+const CommerceSearchPage = lazy(() => import("../commerce/pages/CommerceSearchPage"));
+const CommerceSavedPage = lazy(() => import("../commerce/pages/CommerceSavedPage"));
+const CommerceSellPage = lazy(() => import("../commerce/pages/CommerceSellPage"));
+const CommerceCartPage = lazy(() => import("../commerce/pages/CommerceCartPage"));
 
 export default function AppPageContent({
   tab,
+  appMode = "property",
+  onSwitchMode,
+  commerceSavedIds = new Set(),
+  onToggleCommerceSave,
+  followedSellers = new Set(),
+  onToggleFollowSeller,
+  commerceQuery,
+  onCommerceQueryChange,
   studentMode,
   properties,
   pinnedListingId,
@@ -90,6 +102,55 @@ export default function AppPageContent({
   teamMembers,
   recommendationProfile,
 }) {
+  if (appMode === "commerce") {
+    return (
+      <>
+        {tab === "home" && (
+          <HomePage
+            appMode="commerce"
+            setTab={setTab}
+            onSwitchMode={onSwitchMode}
+            commerceSavedIds={commerceSavedIds}
+            onToggleCommerceSave={onToggleCommerceSave}
+            followedSellers={followedSellers}
+            onToggleFollowSeller={onToggleFollowSeller}
+            commerceQuery={commerceQuery}
+            onCommerceQueryChange={onCommerceQueryChange}
+            onConnectBuy={() => setTab("messages")}
+          />
+        )}
+        {tab === "search" && <CommerceSearchPage onMessage={() => setTab("messages")} onSwitchMode={onSwitchMode} commerceSavedIds={commerceSavedIds} onToggleCommerceSave={onToggleCommerceSave} followedSellers={followedSellers} onToggleFollowSeller={onToggleFollowSeller} commerceQuery={commerceQuery} onCommerceQueryChange={onCommerceQueryChange} />}
+        {tab === "saved" && <CommerceSavedPage savedIds={commerceSavedIds} onToggleSave={onToggleCommerceSave} followedSellers={followedSellers} onToggleFollowSeller={onToggleFollowSeller} onMessage={() => setTab("messages")} />}
+        {tab === "sell" && <CommerceSellPage onBack={() => setTab("home")} />}
+        {tab === "cart" && <CommerceCartPage />}
+        {tab === "messages" && (
+          <MessagesPage
+            properties={properties}
+            contractors={contractors}
+            currentUserId={currentUserId}
+            openProperty={openProperty}
+            unreadCounts={conversationUnreadCounts}
+            onActiveConversationChange={(conversationId) => {
+              const id = conversationId ? String(conversationId) : null;
+              setActiveConversationId(id);
+              if (id) setConversationUnreadCounts((current) => ({ ...current, [id]: 0 }));
+            }}
+            onOpenThread={openChat}
+            contractorId={messagesState.contractorId}
+            contractorName={messagesState.contractorName}
+            roommateId={messagesState.roommateId}
+            roommateName={messagesState.roommateName}
+            templateMessage={messagesState.templateMessage}
+            propertyId={messagesState.propertyId}
+            otherUserId={messagesState.otherUserId}
+            clearMessagesState={clearMessagesState}
+          />
+        )}
+        {tab === "profile" && <ProfilePage profile={userProfile} saved={saved} properties={properties} liked={liked} threads={threads} onNavigate={navigate} proRegistration={proRegistration} onRegisterPro={registerPro} landlordRegistration={landlordRegistration} agentRegistration={agentRegistration} companyRegistration={companyRegistration} contractorRegistration={contractorRegistrations[0]} activeHubType={activeHubType} studentMode={studentMode} onRequestStudentVerification={requestStudentVerification} onUpdateStudentProfile={updateStudentProfile} unreadNotifCount={unreadNotifCount} onOpenNotifications={onOpenNotifications} appMode={appMode} onSwitchMode={onSwitchMode} />}
+      </>
+    );
+  }
+
   return (
     <>
       {tab === "home" && (
@@ -140,6 +201,7 @@ export default function AppPageContent({
             loadingMore={loadingMore}
             loadMore={loadMore}
             onFilterBarVisibilityChange={setHomeFilterBarVisible}
+            onSwitchMode={onSwitchMode}
           />
         )
       )}
@@ -170,6 +232,8 @@ export default function AppPageContent({
           onRequestViewing={requestViewing}
           onSend={(propertyId, text) => sendMessage({ recipientId: propertyId, recipientType: "property", text })}
           onOpenMessage={openMessageThread}
+          appMode={appMode}
+          onSwitchMode={onSwitchMode}
         />
       )}
 
@@ -229,6 +293,8 @@ export default function AppPageContent({
           onUpdateStudentProfile={updateStudentProfile}
           unreadNotifCount={unreadNotifCount}
           onOpenNotifications={onOpenNotifications}
+          appMode={appMode}
+          onSwitchMode={onSwitchMode}
         />
       )}
 

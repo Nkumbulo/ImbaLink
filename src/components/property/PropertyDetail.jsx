@@ -31,6 +31,7 @@ export default function PropertyDetail({
   roommateCount = 0,
   onFindRoommate,
   onOpenProperty,
+  appMode = "property",
 }) {
   // Desktop/tablet gets its own simple centered-card layout (built below)
   // instead of trying to reshape the mobile full-bleed sheet with CSS

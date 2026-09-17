@@ -22,7 +22,7 @@ const THEMES = {
   classic: { green:'#2F7A55', soft:'#E7F0EA', deep:'#204F3A', surface:'#FBF8F0', surface2:'#F1EBDB', surface3:'#E9E1CB', ink:'#14201A', muted:'#62695F', line:'#E7DFC9', rgb:'47,122,85' },
   ocean: { green:'#287C86', soft:'#E4F1F2', deep:'#1D5961', surface:'#F7FAF9', surface2:'#EAF2F1', surface3:'#DDEAE8', ink:'#142325', muted:'#617073', line:'#D8E4E2', rgb:'40,124,134' },
   blush: { green:'#B85C7A', soft:'#F8E8EE', deep:'#873F5A', surface:'#FFF9FA', surface2:'#F7ECEF', surface3:'#F0DEE5', ink:'#2B1D24', muted:'#75666D', line:'#EAD7DE', rgb:'184,92,122' },
-  midnight: { green:'#14201A', soft:'#31453B', deep:'#0D1511', surface:'#1B2822', surface2:'#24352D', surface3:'#111A16', ink:'#F4F8F5', muted:'#AEBBB3', line:'rgba(255,255,255,.13)', rgb:'20,32,26' },
+  liquid: { green:'#8B9CFF', soft:'rgba(255,255,255,.10)', deep:'#080B14', surface:'#070A11', surface2:'rgba(255,255,255,.075)', surface3:'#111728', ink:'#F5F7FF', muted:'#A8B0C4', line:'rgba(255,255,255,.14)', rgb:'139,156,255' },
 };
 
 function applyStartupTheme(id) {

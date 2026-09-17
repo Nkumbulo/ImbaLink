@@ -1,0 +1,3 @@
+import React from "react";
+import { ShoppingBag } from "lucide-react";
+export default function CommerceCartPage(){return <div className="commerce-page web-page commerce-inner"><span className="commerce-eyebrow">Marketplace</span><h1>Cart</h1><div className="commerce-empty"><ShoppingBag size={30}/><h2>Your cart is ready for later</h2><p>ImbaLink is currently designed around buyer–seller conversations. Checkout and payments can be added as a separate phase.</p></div></div>}

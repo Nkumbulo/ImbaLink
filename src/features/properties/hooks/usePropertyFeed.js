@@ -18,7 +18,12 @@ const normalizeFilters = (filters = {}) => ({
   suburb: filters.suburb || 'All',
   type: filters.type || 'All',
   minPrice: Number.isFinite(Number(filters.minPrice)) ? Number(filters.minPrice) : null,
-  maxPrice: Number.isFinite(Number(filters.maxPrice)) ? Number(filters.maxPrice) : null,
+  // The Home price control uses 1000 as its "$1,000+" ceiling sentinel.
+  // Treating that sentinel as a hard maximum hides legitimate properties
+  // above $1,000 before the UI has a chance to render them.
+  maxPrice: Number.isFinite(Number(filters.maxPrice)) && Number(filters.maxPrice) < 1000
+    ? Number(filters.maxPrice)
+    : null,
   verifiedOnly: Boolean(filters.verifiedOnly),
 });
 

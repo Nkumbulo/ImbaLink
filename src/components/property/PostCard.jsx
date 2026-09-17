@@ -37,6 +37,7 @@ const PostCard = memo(function PostCard({
   showRoommateAction = false,
   roommateCount,
   onFindRoommate,
+  appMode = "property",
 }) {
   const {
     burst, burstAction,
@@ -72,6 +73,7 @@ const PostCard = memo(function PostCard({
       {!hideCard && (
         <div
           ref={cardRef}
+          data-imbalink-mode={appMode}
           className={compactDesktop ? "post-card-compact" : "rise"}
           data-property-card-id={p.id}
           data-property-card-selected={desktopSelected ? "true" : "false"}

@@ -6,7 +6,7 @@ import { T } from "../../styles/tokens";
 // only ever takes `isDesktop` as a prop) — confirmed via grep that it
 // references nothing else from HomePage's own scope before extracting.
 
-const HeroSection = React.memo(function HeroSection({ isDesktop = false }) {
+const HeroSection = React.memo(function HeroSection({ isDesktop = false, appMode = "property" }) {
   const heroRef = useRef(null);
   const heroTimerRef = useRef(null);
   const [heroIndex, setHeroIndex] = React.useState(0);
@@ -47,6 +47,37 @@ const HeroSection = React.memo(function HeroSection({ isDesktop = false }) {
 
   if (isDesktop) {
     return null;
+  }
+
+  if (appMode === "commerce") {
+    const commerceSlides = [
+      ["Are you short on money? Sell something.", "Turn things you no longer need into cash.", "💸"],
+      ["Buy from people. Sell to people.", "Anyone can buy. Anyone can sell. That’s ImbaLink.", "🛍️"],
+      ["Your stuff could be someone else’s find.", "List it, connect with interested people and arrange the deal.", "✨"],
+      ["Stay smart. Stay safe.", "Verify the item and seller before you pay. Never share OTPs or PINs.", "🛡️"],
+    ];
+    const [headline, body, icon] = commerceSlides[heroIndex];
+    return (
+      <div ref={heroRef} className="web-subhero px-4 commerce-animated-hero" style={{ paddingTop: 0, height: 64, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "flex-start", boxSizing: "border-box" }}>
+        <style>{`
+          @keyframes commerceHeroIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes commerceLabelPulse { 0%,100% { transform: translateY(0); opacity: .86; } 50% { transform: translateY(-1px); opacity: 1; } }
+          .commerce-animated-hero .hp-hero-message { animation: commerceHeroIn 520ms cubic-bezier(.22,1,.36,1) both; }
+          .commerce-animated-hero .commerce-hero-label { animation: commerceLabelPulse 2.8s ease-in-out infinite; }
+          @media (prefers-reduced-motion: reduce) { .commerce-animated-hero .hp-hero-message, .commerce-animated-hero .commerce-hero-label { animation: none; } }
+        `}</style>
+        <div key={headline} className="hp-hero-message flex flex-col justify-center gap-1" style={{ width: "100%", padding: "8px 11px", borderRadius: 14, background: "linear-gradient(135deg, rgba(67,143,105,0.14), rgba(255,255,255,0.03))", border: "1px solid rgba(114,183,141,0.22)" }}>
+          <div className="f-display font-bold" style={{ color: T.paper, fontSize: 12.5, lineHeight: 1.25, letterSpacing: "-0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", width: "100%" }}>{headline}</div>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5" style={{ minWidth: 0 }}>
+              <div className="hp-hero-icon flex items-center justify-center shrink-0" style={{ width: 20, height: 20, borderRadius: "50%", background: "#CFEAD9" }}><span style={{ fontSize: 10 }}>{icon}</span></div>
+              <div className="f-body" style={{ color: "rgba(251,248,240,0.62)", fontSize: 10.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{body}</div>
+            </div>
+            <div className="commerce-hero-label flex items-center gap-1 px-2 py-0.5 rounded-full shrink-0" style={{ background: "rgba(67,143,105,0.22)", border: "1px solid rgba(114,183,141,0.3)" }}><span style={{ fontSize: 8, color: "#9AD4B3" }}>❤️</span><span className="f-body font-semibold" style={{ color: "#9AD4B3", fontSize: 8, whiteSpace: "nowrap" }}>That’s ImbaLink</span></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,9 +1,9 @@
-import { HomeIcon, Search, MessageCircle, User, Wrench, GraduationCap } from "lucide-react";
+import { HomeIcon, Search, MessageCircle, User, Wrench, GraduationCap, ShoppingBag, PlusCircle, Heart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { T } from "../styles/tokens";
 import UserAvatar from "../components/common/UserAvatar";
 
-export default function BottomNav({ tab, setTab, unreadCount = 0, studentMode = false, hidden = false }) {
+export default function BottomNav({ tab, setTab, unreadCount = 0, studentMode = false, hidden = false, appMode = "property", onSwitchMode }) {
   const [collapsed, setCollapsed] = useState(false);
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
   const ticking = useRef(false);
@@ -26,7 +26,15 @@ export default function BottomNav({ tab, setTab, unreadCount = 0, studentMode = 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const items = studentMode
+  const items = appMode === "commerce"
+    ? [
+        { id: "home", icon: ShoppingBag, label: "Shop" },
+        { id: "search", icon: Search, label: "Explore" },
+        { id: "messages", icon: MessageCircle, label: "Messages", badge: unreadCount },
+        { id: "sell", icon: PlusCircle, label: "Sell" },
+        { id: "profile", icon: User, label: "Profile", profile: true },
+      ]
+    : studentMode
     ? [
         { id: "home", icon: HomeIcon, label: "Home" },
         { id: "search", icon: Search, label: "Explore" },
@@ -63,6 +71,9 @@ export default function BottomNav({ tab, setTab, unreadCount = 0, studentMode = 
         aria-label="Back to top"
       >
         ImbaLink
+      </button>
+      <button type="button" className="mobile-nav-mode-switch" onClick={onSwitchMode} aria-label={appMode === "commerce" ? "Switch to property" : "Switch to marketplace"}>
+        {appMode === "commerce" ? "Property" : "Shop"}
       </button>
       <div className="app-nav-inner mobile-floating-nav-inner">
         {items.map(({ id, icon: Icon, label, badge = 0, profile }) => {

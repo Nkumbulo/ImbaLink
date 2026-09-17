@@ -119,7 +119,7 @@
 html[data-imbalink-theme="classic"] .app-main-shell { background:var(--theme-surface, #FBF8F0) !important; }
 html[data-imbalink-theme="ocean"] .app-main-shell { background:var(--theme-surface, #EEF7F6) !important; }
 html[data-imbalink-theme="blush"] .app-main-shell { background:var(--theme-surface, #FBF0F4) !important; }
-html[data-imbalink-theme="midnight"] .app-main-shell { background:var(--theme-surface, #101814) !important; }
+html[data-imbalink-theme="liquid"] .app-main-shell { background:var(--theme-surface, #F4F7FF) !important; }
 
 /* ================================================================
    Desktop UX polish — palette-preserving theme system
@@ -600,201 +600,349 @@ html[data-imbalink-theme="midnight"] .app-main-shell { background:var(--theme-su
 }
 
 
-/* Imba Midnight — deep #14201A profile. Keep the existing layout while
-   switching workspace surfaces and common controls into a true dark hierarchy. */
-html[data-imbalink-theme="midnight"] {
-  color-scheme: dark;
-}
-html[data-imbalink-theme="midnight"] body,
-html[data-imbalink-theme="midnight"] .app-layout {
-  background: var(--theme-surface-3) !important;
-  color: var(--theme-ink) !important;
-}
-html[data-imbalink-theme="midnight"] .app-main-shell,
-html[data-imbalink-theme="midnight"] .desktop-home-page,
-html[data-imbalink-theme="midnight"] .page-home,
-html[data-imbalink-theme="midnight"] .page-search,
-html[data-imbalink-theme="midnight"] .page-saved,
-html[data-imbalink-theme="midnight"] .page-profile,
-html[data-imbalink-theme="midnight"] .page-landlord,
-html[data-imbalink-theme="midnight"] .page-contractors,
-html[data-imbalink-theme="midnight"] .page-services,
-html[data-imbalink-theme="midnight"] .page-agent,
-html[data-imbalink-theme="midnight"] .page-company {
-  background: var(--theme-surface) !important;
-  color: var(--theme-ink) !important;
-}
-html[data-imbalink-theme="midnight"] .responsive-topbar,
-html[data-imbalink-theme="midnight"] .desktop-sidebar,
-html[data-imbalink-theme="midnight"] .app-nav {
-  background: var(--theme-green) !important;
-}
-/* The mobile/desktop navbar's default border is a color-mix of the theme
-   green with 20% white (GlobalStyles.jsx / ThemeStyles.css above) — on
-   every other theme that reads as a soft highlight against a mid-tone
-   green, but Midnight's "green" is near-black (#14201A), so the same
-   white-mixed border shows up as a distinctly pale ring around an
-   otherwise dark glass bar. Drop it here so the bar reads as clean
-   transparency (still backed by its existing blur/backdrop-filter and
-   shadow) instead of an outlined box. */
-html[data-imbalink-theme="midnight"] .app-nav {
-  border-color: transparent !important;
-}
-html[data-imbalink-theme="midnight"] .topbar-search-wrap input,
-html[data-imbalink-theme="midnight"] input,
-html[data-imbalink-theme="midnight"] textarea,
-html[data-imbalink-theme="midnight"] select {
-  background: var(--theme-surface-2) !important;
-  color: var(--theme-ink) !important;
-  border-color: var(--theme-line) !important;
-}
-html[data-imbalink-theme="midnight"] input::placeholder,
-html[data-imbalink-theme="midnight"] textarea::placeholder {
-  color: var(--theme-muted) !important;
-}
-html[data-imbalink-theme="midnight"] .desktop-sidebar .sidebar-item.is-active {
-  background: var(--theme-surface-2) !important;
-  color: var(--theme-ink) !important;
-}
-html[data-imbalink-theme="midnight"] .desktop-property-card,
-html[data-imbalink-theme="midnight"] .desktop-listing-card,
-html[data-imbalink-theme="midnight"] .profile-desktop-settings-row,
-html[data-imbalink-theme="midnight"] .web-property-grid > *,
-html[data-imbalink-theme="midnight"] .web-search-grid > * {
-  background: var(--theme-surface-2) !important;
-  color: var(--theme-ink) !important;
-  border-color: var(--theme-line) !important;
-}
-html[data-imbalink-theme="midnight"] .messages-desktop-shell > .messages-header {
-  background: var(--theme-surface) !important;
-  color: var(--theme-ink) !important;
-}
-html[data-imbalink-theme="midnight"] .app-nav .mobile-nav-item.is-active {
-  background: rgba(255,255,255,.12) !important;
+/* ================================================================
+   Imba Liquid Glass
+   A light, translucent, depth-based theme inspired by modern liquid-glass
+   interfaces. Layout and interaction remain unchanged; only the visual
+   treatment is themed.
+   ================================================================ */
+html[data-imbalink-theme="liquid"] {
+  color-scheme: light;
+  --liquid-glass: rgba(255,255,255,.54);
+  --liquid-glass-strong: rgba(255,255,255,.72);
+  --liquid-glass-soft: rgba(255,255,255,.38);
+  --liquid-border: rgba(255,255,255,.72);
+  --liquid-shadow: rgba(47,56,110,.16);
+  --liquid-blue: rgba(92,108,255,.16);
 }
 
-/* Imba Midnight — lighter Apple-inspired dark liquid glass treatment. */
-html[data-imbalink-theme="midnight"] {
-  color-scheme: dark;
-  --midnight-glass: rgba(255,255,255,.065);
-  --midnight-glass-strong: rgba(255,255,255,.095);
-  --midnight-border: rgba(255,255,255,.13);
-  --midnight-highlight: rgba(255,255,255,.16);
-}
-html[data-imbalink-theme="midnight"] body {
+html[data-imbalink-theme="liquid"] body {
   background:
-    radial-gradient(circle at 15% 0%, rgba(86,122,105,.16), transparent 34%),
-    radial-gradient(circle at 90% 10%, rgba(255,255,255,.06), transparent 28%),
-    #111A16 !important;
-}
-html[data-imbalink-theme="midnight"] .app-main-shell,
-html[data-imbalink-theme="midnight"] .desktop-home-page,
-html[data-imbalink-theme="midnight"] .page-home,
-html[data-imbalink-theme="midnight"] .page-search,
-html[data-imbalink-theme="midnight"] .page-saved,
-html[data-imbalink-theme="midnight"] .page-profile,
-html[data-imbalink-theme="midnight"] .page-landlord,
-html[data-imbalink-theme="midnight"] .page-contractors,
-html[data-imbalink-theme="midnight"] .page-services,
-html[data-imbalink-theme="midnight"] .page-agent,
-html[data-imbalink-theme="midnight"] .page-company {
-  background: linear-gradient(180deg, rgba(36,53,45,.72), rgba(17,26,22,.94)) !important;
-}
-html[data-imbalink-theme="midnight"] .responsive-topbar,
-html[data-imbalink-theme="midnight"] .desktop-sidebar,
-html[data-imbalink-theme="midnight"] .app-nav {
-  background: rgba(20,32,26,.72) !important;
-  border-color: var(--midnight-border) !important;
-  backdrop-filter: blur(28px) saturate(150%);
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
-  box-shadow: 0 10px 35px rgba(0,0,0,.22), inset 0 1px 0 var(--midnight-highlight);
-}
-html[data-imbalink-theme="midnight"] .desktop-property-card,
-html[data-imbalink-theme="midnight"] .desktop-listing-card,
-html[data-imbalink-theme="midnight"] .profile-desktop-settings-row,
-html[data-imbalink-theme="midnight"] .web-property-grid > *,
-html[data-imbalink-theme="midnight"] .web-search-grid > * {
-  background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.045)) !important;
-  border: 1px solid var(--midnight-border) !important;
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
-  box-shadow: 0 14px 35px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.08);
-}
-html[data-imbalink-theme="midnight"] input,
-html[data-imbalink-theme="midnight"] textarea,
-html[data-imbalink-theme="midnight"] select,
-html[data-imbalink-theme="midnight"] .topbar-search-wrap {
-  background: rgba(255,255,255,.075) !important;
-  border-color: var(--midnight-border) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 20px rgba(0,0,0,.10);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-}
-html[data-imbalink-theme="midnight"] .desktop-sidebar .sidebar-item.is-active {
-  background: rgba(255,255,255,.105) !important;
-  border: 1px solid rgba(255,255,255,.10);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 8px 22px rgba(0,0,0,.12);
-}
-html[data-imbalink-theme="midnight"] .messages-desktop-shell > .messages-header,
-html[data-imbalink-theme="midnight"] .messages-header {
-  background: rgba(20,32,26,.70) !important;
-  border-color: var(--midnight-border) !important;
-  box-shadow: 0 10px 28px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10) !important;
-  backdrop-filter: blur(30px) saturate(155%);
-  -webkit-backdrop-filter: blur(30px) saturate(155%);
-}
-html[data-imbalink-theme="midnight"] .messages-desktop-shell,
-html[data-imbalink-theme="midnight"] .messages-desktop-shell > * {
-  border-color: var(--midnight-border) !important;
-}
-html[data-imbalink-theme="midnight"] .app-nav .mobile-nav-item.is-active {
-  background: rgba(255,255,255,.12) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
-}
-html[data-imbalink-theme="midnight"] button:hover {
-  filter: brightness(1.08);
+    radial-gradient(circle at 12% 5%, rgba(122,141,255,.24), transparent 32%),
+    radial-gradient(circle at 88% 12%, rgba(188,158,255,.20), transparent 28%),
+    radial-gradient(circle at 52% 100%, rgba(108,213,255,.15), transparent 36%),
+    #E8EDFF !important;
+  color: var(--theme-ink) !important;
 }
 
-/* Imba Midnight — unified controls: crisp hairline borders + luminous type. */
-html[data-imbalink-theme="midnight"] button,
-html[data-imbalink-theme="midnight"] [role="button"] {
-  color: #F7FAF8 !important;
-  border: 1px solid rgba(255,255,255,.18) !important;
+html[data-imbalink-theme="liquid"] .app-layout,
+html[data-imbalink-theme="liquid"] .app-main-shell,
+html[data-imbalink-theme="liquid"] .desktop-home-page,
+html[data-imbalink-theme="liquid"] .page-home,
+html[data-imbalink-theme="liquid"] .page-search,
+html[data-imbalink-theme="liquid"] .page-saved,
+html[data-imbalink-theme="liquid"] .page-profile,
+html[data-imbalink-theme="liquid"] .page-landlord,
+html[data-imbalink-theme="liquid"] .page-contractors,
+html[data-imbalink-theme="liquid"] .page-services,
+html[data-imbalink-theme="liquid"] .page-agent,
+html[data-imbalink-theme="liquid"] .page-company {
+  background: transparent !important;
+  color: var(--theme-ink) !important;
 }
-html[data-imbalink-theme="midnight"] button svg,
-html[data-imbalink-theme="midnight"] [role="button"] svg {
-  color: #F7FAF8 !important;
-  stroke: currentColor;
+
+html[data-imbalink-theme="liquid"] .responsive-topbar,
+html[data-imbalink-theme="liquid"] .desktop-sidebar {
+  background: var(--liquid-glass) !important;
+  color: var(--theme-ink) !important;
+  border-color: var(--liquid-border) !important;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  box-shadow: 0 14px 34px var(--liquid-shadow), inset 0 1px 0 rgba(255,255,255,.95);
 }
-html[data-imbalink-theme="midnight"] button:hover,
-html[data-imbalink-theme="midnight"] [role="button"]:hover {
-  border-color: rgba(255,255,255,.28) !important;
+
+html[data-imbalink-theme="liquid"] .desktop-sidebar .sidebar-item,
+html[data-imbalink-theme="liquid"] .desktop-sidebar .sidebar-brand {
+  color: rgba(21,26,43,.72) !important;
 }
-html[data-imbalink-theme="midnight"] button:disabled,
-html[data-imbalink-theme="midnight"] [role="button"][aria-disabled="true"] {
-  color: rgba(247,250,248,.48) !important;
-  border-color: rgba(255,255,255,.10) !important;
+
+html[data-imbalink-theme="liquid"] .desktop-sidebar .sidebar-item.is-active {
+  background: rgba(255,255,255,.58) !important;
+  color: var(--theme-ink) !important;
+  border: 1px solid rgba(255,255,255,.72);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 8px 24px rgba(70,82,160,.10);
 }
-html[data-imbalink-theme="midnight"] a,
-html[data-imbalink-theme="midnight"] .f-display,
-html[data-imbalink-theme="midnight"] .f-body,
-html[data-imbalink-theme="midnight"] label,
-html[data-imbalink-theme="midnight"] strong,
-html[data-imbalink-theme="midnight"] h1,
-html[data-imbalink-theme="midnight"] h2,
-html[data-imbalink-theme="midnight"] h3,
-html[data-imbalink-theme="midnight"] h4,
-html[data-imbalink-theme="midnight"] h5,
-html[data-imbalink-theme="midnight"] h6 {
-  color: #F7FAF8 !important;
+
+html[data-imbalink-theme="liquid"] .desktop-property-card,
+html[data-imbalink-theme="liquid"] .desktop-listing-card,
+html[data-imbalink-theme="liquid"] .profile-desktop-settings-row,
+html[data-imbalink-theme="liquid"] .web-property-grid > *,
+html[data-imbalink-theme="liquid"] .web-search-grid > *,
+html[data-imbalink-theme="liquid"] .web-contractor-card {
+  background: var(--liquid-glass-strong) !important;
+  color: var(--theme-ink) !important;
+  border-color: var(--liquid-border) !important;
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+  box-shadow: 0 16px 34px rgba(65,76,140,.10), inset 0 1px 0 rgba(255,255,255,.92);
 }
-html[data-imbalink-theme="midnight"] p,
-html[data-imbalink-theme="midnight"] small,
-html[data-imbalink-theme="midnight"] span,
-html[data-imbalink-theme="midnight"] li {
-  color: rgba(247,250,248,.86);
+
+html[data-imbalink-theme="liquid"] input,
+html[data-imbalink-theme="liquid"] textarea,
+html[data-imbalink-theme="liquid"] select,
+html[data-imbalink-theme="liquid"] .topbar-search-wrap {
+  background: rgba(255,255,255,.62) !important;
+  color: var(--theme-ink) !important;
+  border-color: rgba(255,255,255,.76) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 8px 22px rgba(65,76,140,.07);
 }
-html[data-imbalink-theme="midnight"] input::placeholder,
-html[data-imbalink-theme="midnight"] textarea::placeholder {
-  color: rgba(247,250,248,.52) !important;
+
+html[data-imbalink-theme="liquid"] input::placeholder,
+html[data-imbalink-theme="liquid"] textarea::placeholder {
+  color: rgba(45,52,76,.48) !important;
+}
+
+/* Mobile bottom navigation: true translucent glass, icon-only, and never
+   collapses away while scrolling. The existing collapsed scroll state is
+   repurposed as a subtle size reduction only for this theme. */
+@media (max-width: 767px) {
+  html[data-imbalink-theme="liquid"] .app-nav.mobile-floating-nav,
+  html[data-imbalink-theme="liquid"] .app-nav.mobile-floating-nav.mobile-nav-collapsed {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    height: 68px !important;
+    padding: 6px !important;
+    bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+    transform: none !important;
+    border-radius: 25px !important;
+    background: rgba(255,255,255,.46) !important;
+    border: 1px solid rgba(255,255,255,.78) !important;
+    backdrop-filter: blur(30px) saturate(190%);
+    -webkit-backdrop-filter: blur(30px) saturate(190%);
+    box-shadow:
+      0 18px 42px rgba(58,68,130,.18),
+      0 3px 10px rgba(58,68,130,.08),
+      inset 0 1px 0 rgba(255,255,255,.96),
+      inset 0 -1px 0 rgba(255,255,255,.24) !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav.mobile-floating-nav.mobile-nav-collapsed {
+    height: 62px !important;
+    padding: 5px !important;
+    border-radius: 23px !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav.mobile-floating-nav::before {
+    inset: 1px !important;
+    border-radius: 24px !important;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.62), rgba(255,255,255,.12) 48%, rgba(120,137,255,.12)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.74);
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .app-nav-inner,
+  html[data-imbalink-theme="liquid"] .app-nav.mobile-nav-collapsed .app-nav-inner {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .mobile-nav-brand,
+  html[data-imbalink-theme="liquid"] .mobile-nav-collapsed .mobile-nav-brand {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-item {
+    min-height: 54px !important;
+    border-radius: 18px !important;
+    gap: 0 !important;
+    color: rgba(30,36,58,.66) !important;
+    transition: transform .16s ease, background .18s ease !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-label {
+    display: none !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-icon {
+    width: 42px !important;
+    height: 42px !important;
+    flex-basis: 42px !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-item.is-active {
+    background: rgba(255,255,255,.70) !important;
+    color: #3F49B8 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.98),
+      0 5px 16px rgba(70,82,170,.10) !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-item.is-active .mobile-nav-icon svg {
+    color: #3F49B8 !important;
+    stroke: #3F49B8 !important;
+    filter: drop-shadow(0 2px 4px rgba(63,73,184,.18));
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-icon svg {
+    color: rgba(30,36,58,.62) !important;
+    stroke: currentColor !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-badge {
+    background: #3F49B8 !important;
+    color: #fff !important;
+    border: 2px solid rgba(255,255,255,.82) !important;
+    box-shadow: 0 4px 10px rgba(63,73,184,.24);
+  }
+}
+
+/* Glass treatment for common theme-controlled buttons without changing
+   their existing sizing or placement. */
+html[data-imbalink-theme="liquid"] .home-filter-button,
+html[data-imbalink-theme="liquid"] .desktop-request-btn {
+  background: linear-gradient(135deg, rgba(92,108,255,.92), rgba(63,73,184,.92)) !important;
+  border-color: rgba(255,255,255,.50) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 24px rgba(63,73,184,.20), inset 0 1px 0 rgba(255,255,255,.30);
+}
+
+html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-item:focus-visible {
+  outline-color: rgba(63,73,184,.62) !important;
+}
+
+
+/* Imba Liquid Glass — dark mode finish. This block is scoped exclusively to
+   the Liquid Glass theme; existing themes and settings are untouched. */
+html[data-imbalink-theme="liquid"] {
+  color-scheme: dark;
+  --liquid-glass: rgba(20,24,36,.58);
+  --liquid-glass-strong: rgba(25,30,45,.72);
+  --liquid-glass-soft: rgba(255,255,255,.055);
+  --liquid-border: rgba(255,255,255,.16);
+  --liquid-shadow: rgba(0,0,0,.42);
+  --liquid-blue: rgba(139,156,255,.18);
+}
+
+html[data-imbalink-theme="liquid"] body {
+  background:
+    radial-gradient(circle at 12% 5%, rgba(91,111,255,.18), transparent 32%),
+    radial-gradient(circle at 88% 12%, rgba(171,117,255,.14), transparent 28%),
+    radial-gradient(circle at 52% 100%, rgba(73,190,255,.10), transparent 36%),
+    #070A11 !important;
+  color: #F5F7FF !important;
+}
+
+html[data-imbalink-theme="liquid"] .app-layout,
+html[data-imbalink-theme="liquid"] .app-main-shell,
+html[data-imbalink-theme="liquid"] .desktop-home-page,
+html[data-imbalink-theme="liquid"] .page-home,
+html[data-imbalink-theme="liquid"] .page-search,
+html[data-imbalink-theme="liquid"] .page-saved,
+html[data-imbalink-theme="liquid"] .page-profile,
+html[data-imbalink-theme="liquid"] .page-landlord,
+html[data-imbalink-theme="liquid"] .page-contractors,
+html[data-imbalink-theme="liquid"] .page-services,
+html[data-imbalink-theme="liquid"] .page-agent,
+html[data-imbalink-theme="liquid"] .page-company {
+  background: transparent !important;
+  color: #F5F7FF !important;
+}
+
+html[data-imbalink-theme="liquid"] .responsive-topbar,
+html[data-imbalink-theme="liquid"] .desktop-sidebar {
+  background: rgba(18,22,34,.64) !important;
+  color: #F5F7FF !important;
+  border-color: rgba(255,255,255,.14) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+
+html[data-imbalink-theme="liquid"] .desktop-sidebar .sidebar-item,
+html[data-imbalink-theme="liquid"] .desktop-sidebar .sidebar-brand {
+  color: rgba(245,247,255,.72) !important;
+}
+
+html[data-imbalink-theme="liquid"] .desktop-sidebar .sidebar-item.is-active {
+  background: rgba(255,255,255,.10) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255,255,255,.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.13), 0 8px 24px rgba(0,0,0,.18) !important;
+}
+
+html[data-imbalink-theme="liquid"] .desktop-property-card,
+html[data-imbalink-theme="liquid"] .desktop-listing-card,
+html[data-imbalink-theme="liquid"] .profile-desktop-settings-row,
+html[data-imbalink-theme="liquid"] .web-property-grid > *,
+html[data-imbalink-theme="liquid"] .web-search-grid > *,
+html[data-imbalink-theme="liquid"] .web-contractor-card {
+  background: rgba(24,29,43,.72) !important;
+  color: #F5F7FF !important;
+  border-color: rgba(255,255,255,.14) !important;
+  box-shadow: 0 16px 34px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+
+html[data-imbalink-theme="liquid"] input,
+html[data-imbalink-theme="liquid"] textarea,
+html[data-imbalink-theme="liquid"] select,
+html[data-imbalink-theme="liquid"] .topbar-search-wrap {
+  background: rgba(255,255,255,.07) !important;
+  color: #F5F7FF !important;
+  border-color: rgba(255,255,255,.14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 8px 22px rgba(0,0,0,.20) !important;
+}
+
+html[data-imbalink-theme="liquid"] input::placeholder,
+html[data-imbalink-theme="liquid"] textarea::placeholder {
+  color: rgba(225,230,245,.46) !important;
+}
+
+@media (max-width: 767px) {
+  html[data-imbalink-theme="liquid"] .app-nav.mobile-floating-nav,
+  html[data-imbalink-theme="liquid"] .app-nav.mobile-floating-nav.mobile-nav-collapsed {
+    background: rgba(18,22,34,.68) !important;
+    border-color: rgba(255,255,255,.18) !important;
+    box-shadow:
+      0 18px 42px rgba(0,0,0,.48),
+      0 3px 10px rgba(0,0,0,.24),
+      inset 0 1px 0 rgba(255,255,255,.16),
+      inset 0 -1px 0 rgba(0,0,0,.20) !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav.mobile-floating-nav::before {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.035) 48%, rgba(100,120,255,.10)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12) !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-item {
+    color: rgba(235,239,255,.62) !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-item.is-active {
+    background: rgba(255,255,255,.12) !important;
+    color: #FFFFFF !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 5px 16px rgba(0,0,0,.18) !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-item.is-active .mobile-nav-icon svg {
+    color: #B8C2FF !important;
+    stroke: #B8C2FF !important;
+    filter: drop-shadow(0 2px 6px rgba(139,156,255,.28));
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-icon svg {
+    color: rgba(235,239,255,.64) !important;
+    stroke: currentColor !important;
+  }
+
+  html[data-imbalink-theme="liquid"] .app-nav .mobile-nav-badge {
+    background: #8B9CFF !important;
+    color: #080B14 !important;
+    border-color: rgba(18,22,34,.92) !important;
+    box-shadow: 0 4px 10px rgba(139,156,255,.26);
+  }
+}
+
+html[data-imbalink-theme="liquid"] .home-filter-button,
+html[data-imbalink-theme="liquid"] .desktop-request-btn {
+  background: linear-gradient(135deg, rgba(139,156,255,.94), rgba(86,101,214,.94)) !important;
+  border-color: rgba(255,255,255,.20) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 10px 24px rgba(70,82,180,.30), inset 0 1px 0 rgba(255,255,255,.22) !important;
 }

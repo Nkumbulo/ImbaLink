@@ -27,7 +27,7 @@ export default function useAppDerivedState({
     ...filters,
     active: filters.suburb !== "All" ||
       filters.type !== "All" ||
-      filters.maxPrice < 1000 ||
+      Number(filters.maxPrice) < 1000 ||
       filters.minPrice > 0 ||
       filters.verifiedOnly,
   }), [filters]);
@@ -43,7 +43,8 @@ export default function useAppDerivedState({
     ) return false;
     if (filters.suburb !== "All" && property.suburb !== filters.suburb) return false;
     if (filters.type !== "All" && property.type !== filters.type) return false;
-    if (property.rent > filters.maxPrice) return false;
+    // 1000 is the UI ceiling sentinel (shown as "$1,000+"). It is not an upper bound.
+    if (Number.isFinite(Number(filters.maxPrice)) && Number(filters.maxPrice) < 1000 && property.rent > Number(filters.maxPrice)) return false;
     if (filters.minPrice && property.rent < filters.minPrice) return false;
     if (filters.verifiedOnly && property.verification !== "verified") return false;
 

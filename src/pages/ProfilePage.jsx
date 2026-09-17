@@ -43,6 +43,8 @@ export default function ProfilePage({
   onUpdateStudentProfile,
   unreadNotifCount = 0,
   onOpenNotifications,
+  appMode = "property",
+  onSwitchMode,
 }) {
   const { signOut, user } = useAuth();
   const [showProModal, setShowProModal] = useState(false);
@@ -77,7 +79,7 @@ export default function ProfilePage({
     root.style.setProperty("--theme-muted", selected.muted);
     root.style.setProperty("--theme-line", selected.line);
     root.style.setProperty("--theme-nav-text", selected.navText);
-    root.style.setProperty("--theme-green-rgb", selected.id === "midnight" ? "20,32,26" : selected.id === "blush" ? "184,92,122" : selected.id === "ocean" ? "40,124,134" : "47,122,85");
+    root.style.setProperty("--theme-green-rgb", selected.rgb || "47,122,85");
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) metaTheme.setAttribute("content", selected.color);
     void Preferences.set({ key: "imbalink-theme", value: selected.id }).catch(() => {});
@@ -103,7 +105,7 @@ export default function ProfilePage({
 
   if (isTabletOrDesktop) {
     return (
-      <div className="pb-8 web-page profile-desktop">
+      <div data-imbalink-mode={appMode} className={`app-face-${appMode} pb-8 web-page profile-desktop`}>
         <div className="px-4 pt-3">
           <div className="f-display font-bold" style={{ color: T.ink, fontSize: 24 }}>Profile</div>
         </div>
@@ -240,7 +242,7 @@ export default function ProfilePage({
   }
 
   return (
-    <div className="pb-8 web-page">
+    <div data-imbalink-mode={appMode} className={`app-face-${appMode} pb-8 web-page`}>
       <div
         className="web-surface"
         style={{

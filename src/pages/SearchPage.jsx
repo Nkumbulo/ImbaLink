@@ -31,6 +31,8 @@ export default function SearchPage({
   onRequestViewing,
   onSend,
   onOpenMessage,
+  appMode = "property",
+  onSwitchMode,
 }) {
   const isTabletOrDesktop = useMediaQuery("(min-width: 768px)");
   const isOnline = useOnlineStatus();
@@ -52,7 +54,7 @@ export default function SearchPage({
   });
 
   return (
-    <div ref={pageRef} className="pb-8 web-page search-page desktop-light-search-page" style={{ position: "relative" }}>
+    <div ref={pageRef} data-imbalink-mode={appMode} className={`pb-8 web-page search-page desktop-light-search-page app-face-${appMode}`} style={{ position: "relative" }}>
       <SearchHeader
         headerRef={headerRef}
         leaving={leaving}

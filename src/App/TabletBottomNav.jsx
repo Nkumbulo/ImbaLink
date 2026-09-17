@@ -1,9 +1,17 @@
-import { HomeIcon, Compass, Mail, Wrench, User, GraduationCap } from "lucide-react";
+import { HomeIcon, Compass, Mail, Wrench, User, GraduationCap, ShoppingBag, PlusCircle } from "lucide-react";
 import { T } from "../styles/tokens";
 import UserAvatar from "../components/common/UserAvatar";
 
-function TabletBottomNav({ tab, setTab, unreadCount = 0, studentMode = false }) {
-  const items = studentMode
+function TabletBottomNav({ tab, setTab, unreadCount = 0, studentMode = false, appMode = "property", onSwitchMode }) {
+  const items = appMode === "commerce"
+    ? [
+        { id: "home", icon: ShoppingBag, label: "Shop" },
+        { id: "search", icon: Compass, label: "Explore" },
+        { id: "messages", icon: Mail, label: "Messages", badge: unreadCount },
+        { id: "sell", icon: PlusCircle, label: "Sell" },
+        { id: "profile", icon: User, label: "Profile", profile: true },
+      ]
+    : studentMode
     ? [
         { id: "home", icon: HomeIcon, label: "Home" },
         { id: "search", icon: Compass, label: "Explore" },

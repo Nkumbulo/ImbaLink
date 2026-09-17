@@ -17,14 +17,7 @@ export const T = {
   ochre: "#B8842E",
   ink60: "var(--theme-muted, #62695F)",
   white: "#FFFFFF",
-  // Fixed (non-theme) light text for the dark theme-green-deep hub banners.
-  // Deliberately NOT var(--theme-surface, ...): that token is light in the
-  // classic/ocean/blush themes but flips dark for midnight (its "surface" is
-  // a near-black background there too), which made hub header titles using
-  // T.paper unreadable in midnight mode specifically — dark text on the
-  // banner's already-dark background. theme-green-deep itself stays a dark
-  // accent color in every theme, so a fixed light value is the correct,
-  // theme-independent choice here rather than another theme-driven token.
+  // Fixed light text for hub banners that use the dark theme-green-deep accent.
   bannerText: "#FBF8F0",
   bannerTextMuted: "rgba(251,248,240,.62)",
   // Desktop light UI tokens are consumed by src/styles/desktop-light.css.

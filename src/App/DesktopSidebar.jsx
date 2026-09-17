@@ -1,8 +1,16 @@
-import { Link2, HomeIcon, Compass, Mail, Bookmark, Wrench, GraduationCap, User } from "lucide-react";
+import { Link2, HomeIcon, Compass, Mail, Bookmark, Wrench, GraduationCap, User, ShoppingBag, PlusCircle } from "lucide-react";
 import UserAvatar from "../components/common/UserAvatar";
 
-function DesktopSidebar({ tab, setTab, unreadCount = 0, studentMode = false }) {
-  const items = studentMode
+function DesktopSidebar({ tab, setTab, unreadCount = 0, studentMode = false, appMode = "property", onSwitchMode }) {
+  const items = appMode === "commerce"
+    ? [
+        { id: "home", label: "Marketplace", icon: ShoppingBag },
+        { id: "search", label: "Explore", icon: Compass },
+        { id: "messages", label: "Messages", icon: Mail, badge: unreadCount },
+        { id: "saved", label: "Saved", icon: Bookmark },
+        { id: "sell", label: "Sell", icon: PlusCircle },
+      ]
+    : studentMode
     ? [
         { id: "home", label: "Home", icon: HomeIcon },
         { id: "search", label: "Explore", icon: Compass },

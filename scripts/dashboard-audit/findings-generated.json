@@ -70,7 +70,7 @@
       "securityImpact": 1,
       "userImpact": 1,
       "technicalRisk": 4,
-      "status": "COMPLETE"
+      "status": "NOT_STARTED"
     },
     {
       "id": "PERF-001",
@@ -286,7 +286,7 @@
       "securityImpact": 1,
       "userImpact": 4,
       "technicalRisk": 3,
-      "status": "COMPLETE"
+      "status": "NOT_STARTED"
     },
     {
       "id": "CQ-003",
@@ -364,84 +364,18 @@
   "notes": {},
   "history": [
     {
-      "date": "2026-09-11T17:57:56.141Z",
+      "date": "2026-09-17T09:49:52.246Z",
       "totalFindings": 20,
       "statusCounts": {
-        "NOT_STARTED": 8,
+        "NOT_STARTED": 10,
         "NEEDS_REVIEW": 3,
-        "COMPLETE": 7,
-        "PARTIALLY_COMPLETE": 2
-      },
-      "openP0P1": 4,
-      "staleFileRefs": [],
-      "checksInconclusive": 4
-    },
-    {
-      "date": "2026-09-11T18:08:37.431Z",
-      "totalFindings": 20,
-      "statusCounts": {
-        "NOT_STARTED": 8,
-        "NEEDS_REVIEW": 3,
-        "COMPLETE": 7,
-        "PARTIALLY_COMPLETE": 2
-      },
-      "openP0P1": 4,
-      "staleFileRefs": [],
-      "checksInconclusive": 4
-    },
-    {
-      "date": "2026-09-11T18:11:14.139Z",
-      "totalFindings": 20,
-      "statusCounts": {
-        "NOT_STARTED": 8,
-        "NEEDS_REVIEW": 3,
-        "COMPLETE": 6,
         "PARTIALLY_COMPLETE": 2,
-        "FAILED": 1
+        "COMPLETE": 5
       },
-      "openP0P1": 5,
-      "staleFileRefs": [],
-      "checksInconclusive": 4
-    },
-    {
-      "date": "2026-09-11T18:13:27.015Z",
-      "totalFindings": 20,
-      "statusCounts": {
-        "NOT_STARTED": 8,
-        "NEEDS_REVIEW": 3,
-        "COMPLETE": 7,
-        "PARTIALLY_COMPLETE": 2
-      },
-      "openP0P1": 4,
-      "staleFileRefs": [],
-      "checksInconclusive": 4
-    },
-    {
-      "date": "2026-09-12T15:41:03.879Z",
-      "totalFindings": 20,
-      "statusCounts": {
-        "NOT_STARTED": 8,
-        "NEEDS_REVIEW": 3,
-        "COMPLETE": 7,
-        "PARTIALLY_COMPLETE": 2
-      },
-      "openP0P1": 4,
-      "staleFileRefs": [],
-      "checksInconclusive": 4
-    },
-    {
-      "date": "2026-09-12T15:41:49.180Z",
-      "totalFindings": 20,
-      "statusCounts": {
-        "NOT_STARTED": 8,
-        "NEEDS_REVIEW": 3,
-        "COMPLETE": 7,
-        "PARTIALLY_COMPLETE": 2
-      },
-      "openP0P1": 4,
+      "openP0P1": 6,
       "staleFileRefs": [],
       "checksInconclusive": 4
     }
   ],
-  "updatedAt": "2026-09-12T15:41:49.182Z"
+  "updatedAt": "2026-09-17T09:49:52.248Z"
 }

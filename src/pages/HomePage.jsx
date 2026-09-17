@@ -7,17 +7,22 @@ import {
   ArrowUpDown,
   Check,
   RotateCcw,
-  MapPin,
   Home,
   DollarSign,
   BedDouble,
-  Link2,
   Bell,
+  ShoppingBag,
+  Search,
 } from "lucide-react";
 import { T } from "../styles/tokens";
 import ToggleSwitch from "../components/common/ToggleSwitch";
 import PriceHistogramSlider from "../components/common/PriceHistogramSlider";
 import { getCityProperties, getPropertyTypes, getPriceCeiling, bedsOf } from "../utils/propertyHelpers";
+import { demoProducts } from "../commerce/commerceData.json";
+import CommerceProductDetailOverlay from "../commerce/components/CommerceProductDetailOverlay";
+import CommerceExploreView from "../commerce/components/CommerceExploreView";
+import CommerceMarketplaceGrid from "../commerce/components/CommerceMarketplaceGrid";
+import { useCommerceInventoryFilters } from "../commerce/useCommerceInventoryFilters";
 import {
   isPropertyVerified,
   bathsOf,
@@ -35,8 +40,9 @@ import HomePropertyFeed from "./HomePage/HomePropertyFeed";
 import { useHomeFeedData } from "./HomePage/useHomeFeedData";
 import { useHomePageBehavior } from "./HomePage/useHomePageBehavior";
 import HomeFilterBar from "./HomePage/HomeFilterBar";
+import BrandMark from "./HomePage/BrandMark";
 
-const HomePage = React.memo(function HomePage({
+const PropertyHomePage = React.memo(function PropertyHomePage({
   properties,
   pinnedListingId,
   liked,
@@ -64,6 +70,11 @@ const HomePage = React.memo(function HomePage({
   loadMore,
   onFilterBarVisibilityChange,
   recommendationProfile,
+  onSwitchMode,
+  appMode = "property",
+  commerceSavedIds = new Set(),
+  onToggleCommerceSave,
+  onConnectBuy,
 }) {
   const isTabletOrDesktop = useMediaQuery("(min-width: 768px)");
   const isDesktopLayout = useMediaQuery("(min-width: 1024px)");
@@ -183,9 +194,9 @@ const HomePage = React.memo(function HomePage({
           }}
         >
           <div className="flex items-center gap-2">
-            <span
-              className="flex items-center justify-center shrink-0"
-              style={{
+            <BrandMark
+              iconClassName="flex items-center justify-center shrink-0"
+              iconStyle={{
                 width: 28,
                 height: 28,
                 borderRadius: 9,
@@ -193,13 +204,10 @@ const HomePage = React.memo(function HomePage({
                 color: T.msasa,
                 border: "1px solid rgba(251,248,240,0.14)",
               }}
-            >
-              <Link2 size={15} strokeWidth={2.2} />
-            </span>
-            <div className="f-display font-extrabold" style={{ fontSize: 24, letterSpacing: "-0.02em" }}>
-              <span style={{ color: "#FFFFFF" }}>Imba</span>
-              <span style={{ color: "#DEC5A4" }}>Link</span>
-            </div>
+              wordmarkAs="div"
+              wordmarkClassName="f-display font-extrabold"
+              wordmarkStyle={{ fontSize: 24, letterSpacing: "-0.02em" }}
+            />
           </div>
           <div
             className="flex items-center gap-2 shrink-0"
@@ -237,6 +245,21 @@ const HomePage = React.memo(function HomePage({
                 <span style={{ width: 5, height: 5, borderRadius: "50%", background: T.paper, flexShrink: 0 }} />
               )}
               <ChevronDown size={11} style={{ flexShrink: 0 }} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSwitchMode?.()}
+              className="f-body font-medium flex items-center justify-center gap-1 px-3"
+              aria-label="Open ImbaLink Marketplace"
+              title="Marketplace"
+              style={{
+                color: T.paper, background: "rgba(255,255,255,0.08)", minWidth: 58, height: 44,
+                borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", touchAction: "manipulation",
+              }}
+            >
+              <ShoppingBag size={16} />
+              <span>Shop</span>
             </button>
 
             <button
@@ -406,6 +429,154 @@ const HomePage = React.memo(function HomePage({
       </div>
     </div>
   );
+});
+
+const CommerceHomeFace = React.memo(function CommerceHomeFace({
+  onSwitchMode,
+  commerceSavedIds = new Set(),
+  onToggleCommerceSave,
+  followedSellers = new Set(),
+  onToggleFollowSeller,
+  setTab,
+  onConnectBuy,
+  commerceQuery,
+  onCommerceQueryChange,
+}) {
+  const isDesktopLayout = useMediaQuery("(min-width: 1024px)");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  // 20 real, curated listings, loaded from src/commerce/commerceData.json
+  // (mock data, not backed by Supabase yet) — no more synthetic
+  // multiplication into hundreds of near-duplicate entries. Each item
+  // already carries its own verified/postedAt/description.
+  //
+  // Filtering logic (search text, type, condition-group, verified-only,
+  // sort) is shared with CommerceSearchPage via useCommerceInventoryFilters
+  // rather than re-implemented here. The search text itself is optionally
+  // controlled from the desktop topbar (commerceQuery), same as Property
+  // mode's own search bar drives PropertyHomePage.
+  const {
+    query, setQuery, verifiedOnly, setVerifiedOnly, activeType, setActiveType,
+    activeCategory, setActiveCategory, sort, setSort,
+    visibleItems: visibleInventory, typeOptions, categoryOptions,
+  } = useCommerceInventoryFilters(demoProducts, { query: commerceQuery, onQueryChange: onCommerceQueryChange });
+
+  const openDetails = (product) => setSelectedProduct(product);
+  const count = commerceSavedIds?.size || 0;
+
+  const selectType = (value) => { setActiveType(value); setMobileFilterOpen(false); };
+  const selectCategory = (value) => { setActiveCategory(value); setMobileFilterOpen(false); };
+
+  const handleConnectBuy = (item) => {
+    onConnectBuy?.(item);
+    if (!onConnectBuy) setTab?.("messages");
+  };
+
+  return (
+    <div className="pb-8 web-page home-page commerce-home-face">
+      {/* Desktop already has this: the sidebar's own ImbaLink brand mark,
+          the Property switch button now in the desktop topbar (replacing
+          the notification bell in commerce mode), and cart access can be
+          revisited separately — so this header is mobile-only, where none
+          of those exist. */}
+      {!isDesktopLayout && (
+        <header className="commerce-home-header" aria-label="ImbaLink Marketplace header">
+          <div className="commerce-home-brand" aria-label="ImbaLink">
+            <BrandMark
+              iconClassName="commerce-home-brand-icon"
+              iconSize={14}
+              wordmarkClassName="f-display font-extrabold commerce-home-brand-wordmark"
+            />
+          </div>
+          <div className="commerce-home-header-actions">
+            <button type="button" onClick={onSwitchMode} className="commerce-mode-header-btn">Property</button>
+            <button type="button" onClick={() => setTab?.("cart")} className="commerce-cart-header-btn" aria-label={`Cart, ${count} saved items`}>
+              <ShoppingBag size={17} />
+              {count > 0 && <span className="commerce-cart-count">{count > 99 ? "99+" : count}</span>}
+            </button>
+          </div>
+        </header>
+      )}
+
+      {/* Mobile Marketplace keeps the same discovery rhythm as Property Home: animated hero, search, quick filter pills, result count + verified pill. Desktop hides this dashboard. */}
+      <section className="commerce-mobile-dashboard" aria-label="Marketplace discovery controls">
+        <HeroSection isDesktop={isDesktopLayout} appMode="commerce" />
+
+        <div className="commerce-mobile-search-row">
+          <div className="commerce-mobile-search" role="search">
+            <Search size={16} />
+            <input aria-label="Search marketplace" placeholder="Search anything people are selling" value={query} onChange={(e) => setQuery(e.target.value)} />
+          </div>
+          <button type="button" className="commerce-mobile-filter-trigger" onClick={() => setMobileFilterOpen((v) => !v)} aria-expanded={mobileFilterOpen}>
+            <SlidersHorizontal size={15} /> Filter
+          </button>
+        </div>
+
+        <div className="commerce-property-filter-row">
+          <FilterPill label="Type" active={activeType !== "All"} onClick={() => setMobileFilterOpen((v) => !v)} dense />
+          <FilterPill label="Category" active={activeCategory !== "All"} onClick={() => setMobileFilterOpen((v) => !v)} dense />
+          <FilterPill label="Price" active={false} onClick={() => setMobileFilterOpen((v) => !v)} dense />
+          <FilterPill label="" ariaLabel="Reset filters" active={false} icon={RotateCcw} iconSize={16} onClick={() => { setActiveType("All"); setActiveCategory("All"); setSort("newest"); setVerifiedOnly(false); setMobileFilterOpen(false); }} dense />
+          <FilterPill label="Sort" active={sort !== "newest"} icon={ArrowUpDown} onClick={() => setSort((v) => v === "newest" ? "price-low" : v === "price-low" ? "price-high" : "newest")} dense />
+        </div>
+
+        <div className="commerce-mobile-results-row">
+          <span className="commerce-listing-count">{visibleInventory.length} Listed Item{visibleInventory.length === 1 ? "" : "s"}</span>
+          <div className="flex items-center gap-1 shrink-0">
+            <ShieldCheck size={12} style={{ color: verifiedOnly ? "#72B78D" : "rgba(20,32,26,0.4)" }} />
+            <ToggleSwitch on={verifiedOnly} onToggle={() => setVerifiedOnly((v) => !v)} />
+          </div>
+        </div>
+
+        {mobileFilterOpen && (
+          <div className="commerce-mobile-filter-panel">
+            <div>
+              <strong>Type</strong>
+              <div className="commerce-mobile-option-row">{typeOptions.map((option) => <button key={option} type="button" className={activeType === option ? "is-active" : ""} onClick={() => selectType(option)}>{option}</button>)}</div>
+            </div>
+            <div>
+              <strong>Category</strong>
+              <div className="commerce-mobile-option-row">{categoryOptions.map((option) => <button key={option} type="button" className={activeCategory === option ? "is-active" : ""} onClick={() => selectCategory(option)}>{option}</button>)}</div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Layout swap: desktop Marketplace shows the same Explore experience
+          Shop Explore shows on mobile (search + quick filters + Property-
+          sized grid tiles); Shop Explore shows this bare Marketplace grid on
+          desktop instead (see CommerceSearchPage). Mobile Marketplace keeps
+          its own dashboard + full CommerceCard grid, unchanged. */}
+      {isDesktopLayout ? (
+        <CommerceExploreView showHeading={false} compactDesktop onMessage={handleConnectBuy} query={commerceQuery} onQueryChange={onCommerceQueryChange} />
+      ) : (
+        <CommerceMarketplaceGrid
+          commerceSavedIds={commerceSavedIds}
+          onToggleCommerceSave={onToggleCommerceSave}
+          followedSellers={followedSellers}
+          onToggleFollowSeller={onToggleFollowSeller}
+          onOpenDetails={openDetails}
+          onAction={handleConnectBuy}
+        />
+      )}
+
+      {selectedProduct && (
+        <CommerceProductDetailOverlay
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onConnectBuy={handleConnectBuy}
+        />
+      )}
+    </div>
+  );
+});
+
+const HomePage = React.memo(function HomePage(props) {
+  if (props.appMode === "commerce") {
+    return <CommerceHomeFace {...props} />;
+  }
+  return <PropertyHomePage {...props} />;
 });
 
 export default HomePage;
