@@ -1,5 +1,25 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
+// Photo storage no longer goes through supabase.storage directly — since
+// the Phase 13 architecture-consolidation boundary work, mutations.js reads
+// an injected storage port (core/data/implementations/shared/storagePort.js)
+// that's normally wired up as a side effect of importing
+// application/backend at app startup (see src/main.jsx). Tests that import
+// mutations.js in isolation never trigger that composition, so
+// getStoragePort() throws "Storage backend is not initialized" regardless
+// of what's mocked here — these hoisted fns stand in for the port directly,
+// matching its real (bucket, path, file, options) / (bucket, path) contract.
+const storagePortMocks = vi.hoisted(() => ({
+  upload: vi.fn(),
+  getUrl: vi.fn(),
+  remove: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../src/core/data/implementations/shared/storagePort.js', () => ({
+  getStoragePort: () => storagePortMocks,
+  setStoragePort: vi.fn(),
+}));
+
 vi.mock('../src/services/supabase.js', () => ({
   supabase: {
     storage: { from: vi.fn() },
@@ -49,6 +69,9 @@ beforeEach(async () => {
   ({ createLandlordListing } = await import('../src/services/db/properties/mutations.js'));
 
   getMediaRecord.mockResolvedValue({ blob: new Blob(['x']), bytes: 1, width: 10, height: 10 });
+  storagePortMocks.upload.mockReset();
+  storagePortMocks.getUrl.mockReset();
+  storagePortMocks.remove.mockReset().mockResolvedValue(undefined);
 
   // Fluent mock matching exactly the chain shapes mutations.js actually
   // calls: supabase.from('properties').insert(row).select() and
@@ -65,20 +88,23 @@ beforeEach(async () => {
   }));
 });
 
+// Storage port's upload() throws on failure (it doesn't return {error} —
+// see src/infrastructure/supabase/adapters/storage.js) so a "flaky" upload
+// rejects on its first N calls and resolves after that.
 function withFlakyThenOk(times) {
   let calls = 0;
   return vi.fn(() => {
     calls += 1;
-    if (calls <= times) return Promise.resolve({ error: new Error('network error: fetch failed') });
-    return Promise.resolve({ error: null });
+    if (calls <= times) return Promise.reject(new Error('network error: fetch failed'));
+    return Promise.resolve();
   });
 }
 
 describe('createLandlordListing retries a flaky photo upload automatically', () => {
   it('succeeds without surfacing an error when one photo upload fails once then succeeds', async () => {
     const upload = withFlakyThenOk(1);
-    const getPublicUrl = vi.fn().mockReturnValue({ data: { publicUrl: 'https://cdn.example.com/photo.jpg' } });
-    supabase.storage.from.mockReturnValue({ upload, getPublicUrl, remove: vi.fn().mockResolvedValue({}) });
+    storagePortMocks.upload.mockImplementation(upload);
+    storagePortMocks.getUrl.mockReturnValue('https://cdn.example.com/photo.jpg');
 
     const progressEvents = [];
     const result = await createLandlordListing(
@@ -96,9 +122,9 @@ describe('createLandlordListing retries a flaky photo upload automatically', () 
 
   it('reports incremental progress as each of several photos completes', async () => {
     getMediaRecord.mockResolvedValue({ blob: new Blob(['x']), bytes: 1, width: 10, height: 10 });
-    const upload = vi.fn().mockResolvedValue({ error: null });
-    const getPublicUrl = vi.fn().mockReturnValue({ data: { publicUrl: 'https://cdn.example.com/p.jpg' } });
-    supabase.storage.from.mockReturnValue({ upload, getPublicUrl, remove: vi.fn().mockResolvedValue({}) });
+    const upload = vi.fn().mockResolvedValue(undefined);
+    storagePortMocks.upload.mockImplementation(upload);
+    storagePortMocks.getUrl.mockReturnValue('https://cdn.example.com/p.jpg');
 
     const progressEvents = [];
     await createLandlordListing(
@@ -117,9 +143,9 @@ describe('createLandlordListing retries a flaky photo upload automatically', () 
   });
 
   it('still fails (and reports a clear error) once a photo exhausts every retry', async () => {
-    const upload = vi.fn().mockResolvedValue({ error: new Error('network error: fetch failed') });
-    const getPublicUrl = vi.fn().mockReturnValue({ data: { publicUrl: 'https://cdn.example.com/p.jpg' } });
-    supabase.storage.from.mockReturnValue({ upload, getPublicUrl, remove: vi.fn().mockResolvedValue({}) });
+    const upload = vi.fn().mockRejectedValue(new Error('network error: fetch failed'));
+    storagePortMocks.upload.mockImplementation(upload);
+    storagePortMocks.getUrl.mockReturnValue('https://cdn.example.com/p.jpg');
 
     await expect(
       createLandlordListing({ title: 'Flat', mediaIds: ['media-1'] })
@@ -131,7 +157,7 @@ describe('createLandlordListing retries a flaky photo upload automatically', () 
   it('does not retry at all when the local photo is simply missing (non-retryable)', async () => {
     getMediaRecord.mockResolvedValue(null);
     const upload = vi.fn();
-    supabase.storage.from.mockReturnValue({ upload, getPublicUrl: vi.fn(), remove: vi.fn().mockResolvedValue({}) });
+    storagePortMocks.upload.mockImplementation(upload);
 
     await expect(
       createLandlordListing({ title: 'Flat', mediaIds: ['media-1'] })

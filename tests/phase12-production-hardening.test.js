@@ -28,12 +28,17 @@ describe('Phase 12 production hardening contracts', () => {
     // These paths are compatibility shims now (see "Legacy compatibility
     // shim" comment in each) — the real guard logic this test checks for
     // lives in the core/data implementation files they forward to.
+    //
+    // students.js has since moved one step further: its own implementation
+    // is now a re-export shim too, forwarding to the Supabase adapter under
+    // infrastructure/supabase/adapters/students.js, which is where the
+    // guard actually lives now.
     const contractors = read('src/core/data/implementations/interactions/contractors.js');
-    const students = read('src/core/data/implementations/students/students.js');
+    const students = read('src/infrastructure/supabase/adapters/students.js');
     expect(contractors).toContain('if (import.meta.env?.VITE_API_BASE_URL) return;');
     const listings = read('src/core/data/implementations/properties/mutations.js');
     expect(listings).toContain('if (import.meta.env?.VITE_API_BASE_URL) {');
-    expect(students).toContain('operation: \'studentInterest.set\'');
+    expect(students).toContain('operation: "studentInterest.set"');
     expect(students).toContain('if (import.meta.env?.VITE_API_BASE_URL) return;');
   });
 

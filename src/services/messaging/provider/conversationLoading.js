@@ -112,8 +112,8 @@ export const conversationLoadingMethods = {
     const id = ids[0];
     const hasCursor = Boolean(cursor?.sentAt && cursor?.id);
 
-    let data = null;
-    let error = null;
+    let data;
+    let error;
 
     // The RPC is the preferred path because it performs the participant
     // check inside a SECURITY DEFINER function and avoids client-side RLS

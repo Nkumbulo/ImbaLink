@@ -19,6 +19,7 @@ import { backend } from '../../application/backend';
 import { newId } from '../ids';
 import { getMediaRecord, assignOwner } from './imageStore';
 import { idbGet, idbGetAll, idbPut } from '../../core/infrastructure/indexeddb';
+import { supabase } from '../supabase';
 
 // propertyId -> { status: 'uploading'|'done'|'failed', total, done, error }
 const STATUS = new Map();
@@ -82,7 +83,7 @@ async function runUpload(propertyId, ownerId, mediaIds) {
       if (!publicUrl) throw new Error('Storage did not return a public photo URL.');
 
       uploadedUrls.push({
-        url: publicData.publicUrl, position,
+        url: publicUrl, position,
         bytes: record.bytes, width: record.width, height: record.height,
       });
       setStatus(id, { done: position + 1 });

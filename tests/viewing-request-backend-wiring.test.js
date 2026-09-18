@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { test, expect } from 'vitest';
 
 test('viewing request banner does not destructure repository at module evaluation time', () => {
   const here = path.dirname(fileURLToPath(import.meta.url));
