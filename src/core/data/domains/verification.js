@@ -1,2 +1,2 @@
-/** Canonical verification domain API. */
-export { setVerificationStatus } from '../adapters/verification.js';
+/** @deprecated Compatibility domain API. New application code should use backend.verificationRepository. */
+export * from "../adapters/verification";

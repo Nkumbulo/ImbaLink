@@ -1,5 +1,3 @@
-import { addMessage } from '../../core/data/domains/messaging.js';
-import { setActiveUser } from '../../core/data/domains/account.js';
 import { MessagingProvider } from "./messagingProvider";
 import { supabase } from "../supabase";
 import { isOnline } from "./provider/shared";

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getShareRequestCountsByProperty } from "../core/data/domains/sharing.js";
+import { backend } from "../application/backend/index.js";
 
 /**
  * Owns the Find-a-Roommate navigation context and its property-level badge
@@ -19,7 +19,7 @@ export default function useAppRoommate({
   const [roommateOriginHadDetailOpen, setRoommateOriginHadDetailOpen] = useState(false);
 
   const refreshShareRequestCounts = useCallback(async () => {
-    const counts = await getShareRequestCountsByProperty().catch(() => ({}));
+    const counts = await backend.sharingRepository.getShareRequestCountsByProperty().catch(() => ({}));
     setShareRequestCounts(counts || {});
   }, []);
 

@@ -3,33 +3,6 @@ import Avatar from "../../components/common/Avatar";
 import { Wrench, MessageCircle, Loader2 } from "lucide-react";
 import { UnreadBadge, InboxStatus } from "./StatusPlaceholders";
 
-function ConversationRow({ conversation, unread, onOpenThread, formatConversationTime }) {
-  const { p, last } = conversation;
-  const open = () => onOpenThread(conversation);
-
-  return (
-    <div key={conversation.id} onClick={open} style={{display:"flex",alignItems:"center",gap:14,padding:"12px 16px",cursor:"pointer",transition:"background 0.15s",borderBottom:`1px solid ${T.line}`,position:"relative"}} className="hover:bg-black/5 active:bg-black/10" role="button" tabIndex={0} onKeyDown={(event)=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();open();}}}>
-      {conversation.type === "contractor" ? (
-        <div style={{width:52,height:52,borderRadius:"50%",background:T.jacaranda+"20",border:`2px solid ${T.jacaranda}40`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-          <Wrench size={24} color={T.jacaranda}/>
-        </div>
-      ) : (
-        <Avatar src={p.url} grad={p.grad} letter={p.landlord?.[0] || "?"} size={52}/>
-      )}
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-          <div style={{fontWeight:unread>0?700:600,color:T.ink,fontSize:15,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{p.landlord}</div>
-          <div style={{color:unread>0?T.jacaranda:T.ink60,fontSize:11,fontWeight:unread>0?700:500,flexShrink:0,whiteSpace:"nowrap",letterSpacing:unread>0?"0.1px":"0"}}>{formatConversationTime(last?.ts)}</div>
-        </div>
-        <div style={{color:unread>0?T.ink:T.ink60,fontSize:13,fontWeight:unread>0?500:400,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",marginTop:2}}>
-          {last?.from === "me" && "You: "}{last?.text || ""}
-        </div>
-      </div>
-      {unread>0 && <UnreadBadge count={unread}/>}
-    </div>
-  );
-}
-
 export default function ConversationInbox({inboxFilter,setInboxFilter,conversations,conversationsLoading,conversationsError,convos,searchQuery,conversationsHasMore,conversationsLoadingMore,loadMoreConversations,unreadCounts,openThread,formatConversationTime,refreshConversations}) {
   return (
 <>
@@ -182,7 +155,6 @@ export default function ConversationInbox({inboxFilter,setInboxFilter,conversati
           const {
             p,
             last,
-            unreadCount,
           } =
             conversation;
 

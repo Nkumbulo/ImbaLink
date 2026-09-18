@@ -372,7 +372,7 @@ export const conversationLoadingMethods = {
     // prevent the message history from being returned to the UI.
     try {
       return await this._buildConversation(realId, uid, rows);
-    } catch (metaError) {
+    } catch {
       const fallbackMeta = {
         id: realId, type: 'property', propertyId: null, contractorId: null,
         roommateId: null, otherParticipantId: null, displayName: 'Conversation',

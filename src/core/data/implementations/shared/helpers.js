@@ -50,3 +50,19 @@ export function numOr(value, fallback) {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
 }
+
+export function normalizeStudentProfile(record) {
+  if (!isObject(record)) return null;
+  return {
+    university: String(record.university || '').trim().slice(0, 120),
+    studyYear: String(record.studyYear || '').trim().slice(0, 30),
+    preferredCity: String(record.preferredCity || '').trim().slice(0, 60),
+    preferredArea: String(record.preferredArea || '').trim().slice(0, 60),
+    budget: String(record.budget || '').trim().slice(0, 30),
+    accommodationPreference: String(record.accommodationPreference || 'Any').trim().slice(0, 40),
+    wantsRoommate: Boolean(record.wantsRoommate),
+    roommatesNeeded: String(record.roommatesNeeded || '').trim().slice(0, 20),
+    lifestyleNotes: String(record.lifestyleNotes || '').trim().slice(0, 240),
+    roommatePropertyId: record.roommatePropertyId != null ? String(record.roommatePropertyId) : '',
+  };
+}

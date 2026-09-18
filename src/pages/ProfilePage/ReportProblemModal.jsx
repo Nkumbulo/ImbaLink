@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Loader2, X } from "lucide-react";
-import { submitSupportRequest } from "../../core/data/domains/support";
+import { backend } from "../../application/backend";
 import { T } from "../../styles/tokens";
 
 const CATEGORIES = [
@@ -30,7 +30,7 @@ export default function ReportProblemModal({ onClose }) {
     setBusy(true);
     setError("");
     try {
-      await submitSupportRequest({
+      await backend.supportRepository.submitSupportRequest({
         kind: "problem",
         category,
         message: details.trim(),
@@ -38,7 +38,7 @@ export default function ReportProblemModal({ onClose }) {
         pageContext: window.location?.pathname || null,
       });
       setSent(true);
-    } catch (e) {
+    } catch {
       setError("We couldn't send your report. Please try again.");
     } finally {
       setBusy(false);

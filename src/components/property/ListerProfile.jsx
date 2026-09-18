@@ -1,7 +1,7 @@
 import { findProfileById } from '../../core/data/domains/profile.js';
 import { getLandlordListings } from '../../core/data/domains/properties.js';
 import { useEffect, useState } from "react";
-import { X, MapPin, Home, BadgeCheck, Loader2, Building2 } from "lucide-react";
+import { X, MapPin, Home, Loader2, Building2 } from "lucide-react";
 import { T } from "../../styles/tokens";
 import Avatar from "../common/Avatar";
 import VerifiedBadge from "../common/VerifiedBadge";

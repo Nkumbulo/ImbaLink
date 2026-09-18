@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Preferences } from "@capacitor/preferences";
 import useMediaQuery from "../hooks/useMediaQuery";
 import {
@@ -11,9 +11,8 @@ import { T } from "../styles/tokens";
 import Avatar from "../components/common/Avatar";
 import "./RoommateFinderPage.css";
 import { useAuth } from "../auth/AuthContext"; // adjust path if needed
-import { GOLD, HUBS, SETTINGS_ROWS, THEMES, resolveIdentity, resolveAccountLabel } from "./ProfilePage/constants";
-import { Stat, HubButton, ProBadge, StudentVerificationBadge } from "./ProfilePage/StatusPrimitives";
-import PropertyPicker from "./ProfilePage/PropertyPicker";
+import { HUBS, SETTINGS_ROWS, THEMES, resolveIdentity, resolveAccountLabel } from "./ProfilePage/constants";
+import { Stat, HubButton, ProBadge } from "./ProfilePage/StatusPrimitives";
 import StudentProfileSection from "./ProfilePage/StudentProfileSection";
 import ThemeModal from "./ProfilePage/ThemeModal";
 import ProRegistrationModal from "./ProfilePage/ProRegistrationModal";
@@ -44,7 +43,7 @@ export default function ProfilePage({
   unreadNotifCount = 0,
   onOpenNotifications,
   appMode = "property",
-  onSwitchMode,
+  onSwitchMode: _onSwitchMode,
 }) {
   const { signOut, user } = useAuth();
   const [showProModal, setShowProModal] = useState(false);

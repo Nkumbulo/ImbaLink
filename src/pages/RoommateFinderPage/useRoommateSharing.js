@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { findProfileById } from "../../core/data/domains/profile.js";
-import { createShareRequest, deleteShareRequest, getActiveShareRequestsForProperty, getShareRequests } from "../../core/data/domains/sharing.js";
-import { getUniversities } from "../../core/data/domains/students.js";
+import { backend } from "../../application/backend/index.js";
 import { computeRoommateCompatibility } from "../../utils/studentHelpers";
 
 export const PROPERTY_REQUESTERS_PER_PAGE = 12;
@@ -26,12 +25,12 @@ export function useRoommateSharing({ userId, myProfile, focusProperty, focusProp
 
   useEffect(() => {
     let active = true;
-    getUniversities().then((rows) => { if (active) setUniversities(rows); }).catch(() => {});
+    backend.studentRepository.getUniversities().then((rows) => { if (active) setUniversities(rows); }).catch(() => {});
     return () => { active = false; };
   }, []);
 
   const refreshMyRequests = useCallback(async () => {
-    const rows = await getShareRequests(userId).catch(() => []);
+    const rows = await backend.sharingRepository.getShareRequests(userId).catch(() => []);
     setMyRequests(Array.isArray(rows) ? rows.filter((r) => (r.status || "active") !== "withdrawn") : []);
   }, [userId]);
 
@@ -44,7 +43,7 @@ export function useRoommateSharing({ userId, myProfile, focusProperty, focusProp
     }
     setLoadingPropertyRequesters(true);
     try {
-      const requests = await getActiveShareRequestsForProperty(propertyId);
+      const requests = await backend.sharingRepository.getActiveShareRequestsForProperty(propertyId);
       const withProfiles = await Promise.all(requests.map(async (request) => {
         const profile = await findProfileById(request.userId).catch(() => null);
         const sp = profile?.studentProfile || {};
@@ -133,7 +132,7 @@ export function useRoommateSharing({ userId, myProfile, focusProperty, focusProp
     if (!window.confirm("Remove your roommate listing for this property? Other students will no longer see you as interested in sharing it.")) return;
     setTogglingShareInterest(true);
     try {
-      await deleteShareRequest(myRequestForProperty.requestId);
+      await backend.sharingRepository.deleteShareRequest(myRequestForProperty.requestId);
       showToast("Your roommate listing was removed.");
       await loadPropertyRequesters(focusProperty?.id);
       await refreshMyRequests();
@@ -152,7 +151,7 @@ export function useRoommateSharing({ userId, myProfile, focusProperty, focusProp
     const label = linkedProperty ? "this property" : "this roommate request";
     if (!window.confirm(`Remove your roommate listing for ${label}? Other students will no longer see you as interested.`)) return;
     try {
-      await deleteShareRequest(request.id);
+      await backend.sharingRepository.deleteShareRequest(request.id);
       await refreshMyRequests();
       if (linkedProperty && focusPropertyId != null && String(request.propertyId) === String(focusPropertyId)) {
         await loadPropertyRequesters(focusPropertyId);
@@ -169,7 +168,7 @@ export function useRoommateSharing({ userId, myProfile, focusProperty, focusProp
     setSubmittingRequest(true);
     try {
       const propertyId = requestForm.propertyId || myProfile.roommatePropertyId || null;
-      await createShareRequest({
+      await backend.sharingRepository.createShareRequest({
         userId, propertyId, university: myProfile.university || "",
         roommatesNeeded: requestForm.roommatesNeeded, budget: requestForm.budget,
         moveInDate: requestForm.moveInDate, preferences: requestForm.preferences,

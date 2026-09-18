@@ -1,4 +1,4 @@
-import { getMyReportForListing, reportListing } from '../../../core/data/domains/interactions.js';
+import { backend } from "../../../application/backend/index.js";
 import { useEffect, useState } from "react";
 // Report listing — backend/017-listing-reports.sql. `reportStatus` null
 // means "not yet reported (or unknown)"; a string means an open/reviewing
@@ -14,7 +14,7 @@ export function usePropertyReport(propertyId) {
   useEffect(() => {
     let cancelled = false;
     if (!propertyId) return undefined;
-    getMyReportForListing(propertyId).then((existing) => {
+    backend.reportRepository.getMyReportForListing(propertyId).then((existing) => {
       if (!cancelled) setReportStatus(existing ? existing.status : null);
     });
     return () => { cancelled = true; };
@@ -24,7 +24,7 @@ export function usePropertyReport(propertyId) {
     if (!reportReason || reportSubmitting) return;
     setReportSubmitting(true);
     try {
-      await reportListing(propertyId, reportReason, reportNote);
+      await backend.reportRepository.reportListing(propertyId, reportReason, reportNote);
       setReportStatus("open");
       setShowReportModal(false);
       setReportReason("");

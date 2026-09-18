@@ -1,6 +1,6 @@
 
 import {useEffect,useRef,useState} from "react";
-import {LayoutDashboard,Users,Building2,GraduationCap,HardHat,Flag,ShieldCheck,Activity,BarChart3,Settings,LogOut,ChevronDown,Shield,Receipt,ScrollText,Megaphone} from "lucide-react";
+import {LayoutDashboard,Users,Building2,Flag,ShieldCheck,Activity,BarChart3,LogOut,ChevronDown,Shield,Receipt,ScrollText,Megaphone} from "lucide-react";
 import {supabase} from "../../core/supabase/client";
 const items=[
  ["dashboard","Dashboard",LayoutDashboard],["users","Users",Users],["properties","Properties",Building2],["moderation","Moderation",ShieldCheck],["transactions","Transactions",Receipt],["reports","Reports",Flag],["app-control","App Control",Megaphone],["audit-logs","Audit Logs",ScrollText],["operations","Operations",Activity],["analytics","Analytics",BarChart3],

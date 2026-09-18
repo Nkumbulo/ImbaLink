@@ -1,4 +1,4 @@
-import { getLandlordVerification, submitLandlordVerification } from '../../core/data/domains/registrations.js';
+import { backend } from '../../application/backend/index.js';
 import { useEffect, useRef, useState } from "react";
 import { X, ShieldCheck, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { T } from "../../styles/tokens";
@@ -27,7 +27,7 @@ export default function LandlordIdentityVerification({ onClose, userId }) {
     let active = true;
     (async () => {
       try {
-        const row = await getLandlordVerification(userId);
+        const row = await backend.registrationRepository.getLandlordVerification(userId);
         if (!active) return;
         setVerification(row);
         if (row?.phone) setPhone(row.phone);
@@ -82,7 +82,7 @@ export default function LandlordIdentityVerification({ onClose, userId }) {
 
     setSubmitting(true);
     try {
-      const row = await submitLandlordVerification({ phone, file });
+      const row = await backend.registrationRepository.submitLandlordVerification({ phone, file, userId });
       setVerification(row);
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";

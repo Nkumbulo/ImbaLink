@@ -4,7 +4,7 @@
 
 Stabilize the system before adding more product features. This phase establishes dependency boundaries and compatibility layers without a risky rewrite.
 
-## Current target architecture
+## Current target architecture — Phase 1 backend boundary
 
 ```text
                     React / UI
@@ -25,9 +25,21 @@ Stabilize the system before adding more product features. This phase establishes
        PostgreSQL   IndexedDB     Auth / RLS / RPC
 ```
 
+## Backend boundary — Phase 1
+
+The provider-independent backend boundary lives under `src/core/backend/`.
+Business-level contracts define what ImbaLink needs; they do not expose database
+or provider details. Supabase-specific implementation belongs under
+`src/infrastructure/supabase/`.
+
+`src/core/backend/createBackend.js` validates a provider implementation at the
+composition boundary. It is intentionally not wired into existing features yet;
+that migration happens domain-by-domain to preserve runtime behavior.
+
 ## Canonical infrastructure
 
-- `src/core/supabase/client.js` — the only browser Supabase client.
+- `src/infrastructure/supabase/client.js` — the only Supabase SDK import/client.
+- `src/core/supabase/client.js` — deprecated compatibility facade only.
 - `src/core/data/rpc.js` — canonical RPC and Edge Function gateway.
 - `src/core/auth/authorization.js` — client-side authorization state for UX; server authorization remains authoritative.
 - `src/core/errors/AppError.js` — common service-boundary error type.

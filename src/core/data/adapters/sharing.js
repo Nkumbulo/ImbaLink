@@ -1,8 +1,8 @@
 /** Infrastructure adapter: canonical student/property sharing persistence boundary. */
 import { supabase } from '../../../services/supabase';
 import { requireCurrentUserId } from '../domains/shared/identity';
+import { normalizeStudentProfile } from '../implementations/shared/helpers';
 import { newId } from '../../../services/ids';
-import { normalizeStudentProfile } from '../../../services/db/profile';
 import { createSharingService } from '../implementations/sharing/sharing';
 
 export const {

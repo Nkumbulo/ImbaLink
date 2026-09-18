@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Activity, AlertTriangle, Building2, CheckCircle2, Download, FileJson, FileSpreadsheet, History, MailPlus, RefreshCw, ShieldCheck, Users, X } from "lucide-react";
+import { Activity, AlertTriangle, Building2, CheckCircle2, FileJson, FileSpreadsheet, History, MailPlus, RefreshCw, ShieldCheck, Users, X } from "lucide-react";
 import { adminFormat } from "../../services/admin/adminAnalytics";
 import { createLandlordInvite, downloadCSV, downloadJSON, exportAdminData, getAdminAuditLog, getAdminInsights } from "../../services/admin/adminTools";
-import { StatusBadge } from "../../components/admin/AdminDataTable";
 import useAdminRealtime from "../../hooks/useAdminRealtime";
 
 const exportOptions = [
@@ -37,7 +36,7 @@ function LandlordModal({ onClose, onCreated }) {
 }
 
 export default function AdminOperationsPage() {
-  const [insights, setInsights] = useState(null); const [audit, setAudit] = useState({ rows: [], total: 0 }); const [loading, setLoading] = useState(true); const [error, setError] = useState(""); const [modal, setModal] = useState(false); const [exporting, setExporting] = useState("");
+  const [insights, setInsights] = useState(null); const [audit, setAudit] = useState({ rows: [], total: 0 }); const [_loading, setLoading] = useState(true); const [error, setError] = useState(""); const [modal, setModal] = useState(false); const [exporting, setExporting] = useState("");
   const load = async () => { setLoading(true); setError(""); try { const [i, a] = await Promise.all([getAdminInsights(), getAdminAuditLog({ limit: 12 })]); setInsights(i); setAudit(a); } catch (e) { setError(e?.message || "Unable to load admin operations."); } finally { setLoading(false); } };
   useEffect(() => { load(); }, []);
   useAdminRealtime(() => load());

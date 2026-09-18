@@ -1,4 +1,18 @@
-import { getViewingRequestStatus, respondToViewingRequest, subscribeViewingRequestStatuses } from '../../core/data/domains/interactions.js';
+import { backend } from '../../application/backend/index.js';
+
+const getViewingRequestStatus = (...args) => backend.viewingRequestRepository?.getViewingRequestStatus?.(...args) ?? null;
+const respondToViewingRequest = (...args) => {
+  const repository = backend.viewingRequestRepository;
+  if (!repository?.respondToViewingRequest) {
+    return Promise.reject(new Error('Viewing request backend is not available. Please refresh the app and try again.'));
+  }
+  return repository.respondToViewingRequest(...args);
+};
+const subscribeViewingRequestStatuses = (...args) => {
+  const repository = backend.viewingRequestRepository;
+  if (!repository?.subscribeViewingRequestStatuses) return () => {};
+  return repository.subscribeViewingRequestStatuses(...args);
+};
 import { localCache } from '../../core/cache';
 import { VIEWING_TERMINAL_STATUSES } from '../../features/messaging/utils/messageViewModel';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

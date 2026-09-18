@@ -1,4 +1,4 @@
-import { idbGet, idbGetAll, idbPut, idbDelete } from '../infrastructure/indexeddb';
+import { idbGetAll, idbPut, idbDelete } from '../infrastructure/indexeddb';
 import { enqueue } from './outbox';
 import { newId } from '../../services/ids';
 

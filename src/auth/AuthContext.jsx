@@ -1,7 +1,6 @@
 import { setActiveUser } from '../core/data/domains/account.js';
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
-import { supabase } from "../core/supabase/client";
-import { supabaseAuthProvider } from "./supabaseAuthProvider";
+import { backend } from "../application/backend/index.js";
 import { setAuthTokenProvider } from "../core/infrastructure/apiClient";
 
 const AuthContext = createContext(null);
@@ -103,7 +102,7 @@ export function AuthProvider({ children }) {
 
     // Boot from the Supabase Auth session only. Do not block the splash on
     // public profile queries: iOS/Safari can leave those requests pending.
-    withAuthTimeout(supabaseAuthProvider.getSession())
+    withAuthTimeout(backend.auth.getSession())
       .then((initial) => {
         if (!active) return;
 
@@ -113,7 +112,7 @@ export function AuthProvider({ children }) {
         if (initial === AUTH_BOOT_TIMEOUT) {
           // Keep the splash during a slow restore, then make one direct retry.
           // We must not treat a timed-out session as a logged-out user.
-          withAuthTimeout(supabaseAuthProvider.getSession())
+          withAuthTimeout(backend.auth.getSession())
             .then((retry) => {
               if (!active) return;
 
@@ -147,7 +146,7 @@ export function AuthProvider({ children }) {
                 setAuthLoading(false);
                 return;
               }
-              withProfileTimeout(supabaseAuthProvider.hydrateSession(retry))
+              withProfileTimeout(backend.auth.hydrateSession(retry))
                 .then((hydrated) => {
                   if (!active) return;
                   if (hydrated && hydrated !== PROFILE_HYDRATE_TIMEOUT && hydrated.user) {
@@ -184,7 +183,7 @@ export function AuthProvider({ children }) {
         // network is slow/offline, the app still opens instead of hanging on
         // "Connecting spaces".
         if (initial) {
-          withProfileTimeout(supabaseAuthProvider.hydrateSession(initial))
+          withProfileTimeout(backend.auth.hydrateSession(initial))
             .then((hydrated) => {
               if (!active) return;
               if (hydrated && hydrated !== PROFILE_HYDRATE_TIMEOUT && hydrated.user) {
@@ -212,7 +211,7 @@ export function AuthProvider({ children }) {
     // Fires when the browser returns from Google with tokens in the URL, and
     // again on every token refresh. This is what turns the redirect back into
     // a signed-in app — there is no callback route to write.
-    const { data } = supabase.auth.onAuthStateChange((_event, nextSupabaseSession) => {
+    const unsubscribeAuth = backend.auth.onAuthStateChange((_event, nextSupabaseSession) => {
       if (!active) return;
 
       // IMPORTANT: Supabase invokes this callback while its internal auth
@@ -252,7 +251,7 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      const next = supabaseAuthProvider.sessionFromSupabase(nextSupabaseSession);
+      const next = backend.auth.sessionFromSupabase(nextSupabaseSession);
       applySession(next);
       setProfileReady(false);
       setProfileKnown(false);
@@ -262,7 +261,7 @@ export function AuthProvider({ children }) {
       // query. The profile is enrichment, never a prerequisite for rendering.
       window.setTimeout(() => {
         if (!active) return;
-        withProfileTimeout(supabaseAuthProvider.hydrateSession(next))
+        withProfileTimeout(backend.auth.hydrateSession(next))
           .then((hydrated) => {
             if (!active) return;
             if (hydrated && hydrated !== PROFILE_HYDRATE_TIMEOUT && hydrated.user) {
@@ -281,14 +280,14 @@ export function AuthProvider({ children }) {
 
     return () => {
       active = false;
-      data.subscription.unsubscribe();
+      unsubscribeAuth?.();
     };
   }, [applySession]);
 
   const signInWithGoogle = useCallback(async () => {
     setLoading(true);
     try {
-      await supabaseAuthProvider.signInWithGoogle();
+      await backend.auth.signInWithGoogle();
       // On WEB, success means the page is already navigating away to
       // Google, so this line effectively never runs. On the NATIVE app,
       // though, signInWithGoogle() now opens a system browser SHEET over
@@ -310,7 +309,7 @@ export function AuthProvider({ children }) {
   const completeProfile = useCallback(async (details) => {
     setLoading(true);
     try {
-      const user = await supabaseAuthProvider.completeProfile(details);
+      const user = await backend.auth.completeProfile(details);
       const current = sessionRef.current;
       applySession({ ...(current || {}), user });
       return user;
@@ -338,7 +337,7 @@ export function AuthProvider({ children }) {
       applySession(DEV_SESSION);
       return;
     }
-    await supabaseAuthProvider.signOut();
+    await backend.auth.signOut();
     applySession(null);
   }, [applySession]);
 
@@ -349,7 +348,7 @@ export function AuthProvider({ children }) {
       applySession({ ...current, user: { ...current.user, ...updates } });
       return;
     }
-    const updated = await supabaseAuthProvider.updateProfile(current, updates);
+    const updated = await backend.auth.updateProfile(current, updates);
     applySession(updated);
   }, [applySession]);
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getFirstName } from "./textHelpers";
-import { findConversationWith } from "../../core/data/domains/interactions.js";
+import { backend } from "../../application/backend/index.js";
 
 export function useMessageThreadState({
   properties = [],
@@ -51,7 +51,7 @@ export function useMessageThreadState({
     if (targetProperty) {
       setCurrentThreadId(targetProperty.id);
       if (otherUserId) {
-        findConversationWith(otherUserId).then((id) => {
+        backend.viewingRequestRepository.findConversationWith(otherUserId).then((id) => {
           if (id) setCurrentThreadRealId(id);
         });
       } else {

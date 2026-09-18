@@ -81,7 +81,7 @@ export default function AppPageContent({
   requestStudentVerification,
   updateStudentProfile,
   unreadNotifCount,
-  setShowNotifications,
+  setShowNotifications: _setShowNotifications,
   onOpenNotifications,
   createListing,
   updateListing,

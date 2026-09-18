@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getContractors } from '../../../core/data/domains/interactions.js';
 import { getUserProfile } from '../../../core/data/domains/profile.js';
 import { getUserState, saveUserState } from '../../../core/data/domains/session.js';
 import { getLandlordListings, getPropertyRecommendationProfile } from '../../../core/data/domains/properties.js';
-import { getContractorRegistrations, getLandlordRegistration, getProRegistration } from '../../../core/data/domains/registrations.js';
+import { backend } from '../../../application/backend/index.js';
 import { localCache } from '../../../core/cache';
 
 const MOBILE_FEED_TIMEOUT_MS = 6500;
@@ -70,9 +70,9 @@ export function useDatabaseAccountState(userId) {
           withTimeout(getLandlordListings(userId).catch(() => []), MOBILE_FEED_TIMEOUT_MS, []),
           withTimeout(getContractors().catch(() => []), MOBILE_FEED_TIMEOUT_MS, []),
           withTimeout(getUserState().catch(() => null), MOBILE_FEED_TIMEOUT_MS, null),
-          withTimeout(getContractorRegistrations(userId).catch(() => []), MOBILE_FEED_TIMEOUT_MS, []),
-          withTimeout(getLandlordRegistration(userId).catch(() => null), MOBILE_FEED_TIMEOUT_MS, null),
-          withTimeout(getProRegistration(userId).catch(() => null), MOBILE_FEED_TIMEOUT_MS, null),
+          withTimeout(backend.registrationRepository.getContractorRegistrations(userId).catch(() => []), MOBILE_FEED_TIMEOUT_MS, []),
+          withTimeout(backend.registrationRepository.getLandlordRegistration(userId).catch(() => null), MOBILE_FEED_TIMEOUT_MS, null),
+          withTimeout(backend.registrationRepository.getProRegistration(userId).catch(() => null), MOBILE_FEED_TIMEOUT_MS, null),
           withTimeout(getPropertyRecommendationProfile().catch(() => null), MOBILE_FEED_TIMEOUT_MS, null),
         ]);
 

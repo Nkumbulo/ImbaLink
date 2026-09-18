@@ -1,40 +1,23 @@
-import React, { useEffect, useLayoutEffect, useRef, useMemo, useCallback, useState } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import useMediaQuery from "../hooks/useMediaQuery";
 import {
   ChevronDown,
   SlidersHorizontal,
   ShieldCheck,
   ArrowUpDown,
-  Check,
   RotateCcw,
-  Home,
-  DollarSign,
-  BedDouble,
   Bell,
   ShoppingBag,
   Search,
 } from "lucide-react";
 import { T } from "../styles/tokens";
 import ToggleSwitch from "../components/common/ToggleSwitch";
-import PriceHistogramSlider from "../components/common/PriceHistogramSlider";
-import { getCityProperties, getPropertyTypes, getPriceCeiling, bedsOf } from "../utils/propertyHelpers";
 import { demoProducts } from "../commerce/commerceData.json";
 import CommerceProductDetailOverlay from "../commerce/components/CommerceProductDetailOverlay";
 import CommerceExploreView from "../commerce/components/CommerceExploreView";
 import CommerceMarketplaceGrid from "../commerce/components/CommerceMarketplaceGrid";
 import { useCommerceInventoryFilters } from "../commerce/useCommerceInventoryFilters";
-import {
-  isPropertyVerified,
-  bathsOf,
-  isFurnishedProp,
-  isUnfurnishedProp,
-  hasParkingProp,
-  isAvailableNowProp,
-  amenitiesOf,
-  isPetFriendlyProp,
-} from "./HomePage/propertyPredicates";
-import { BEDS_OPTIONS, BATHS_OPTIONS, FURNISHED_OPTIONS, AMENITY_OPTIONS, SORT_OPTIONS } from "./HomePage/filterOptions";
-import { FilterPill, DesktopFilterField } from "./HomePage/FilterControls";
+import { FilterPill } from "./HomePage/FilterControls";
 import HeroSection from "./HomePage/HeroSection";
 import HomePropertyFeed from "./HomePage/HomePropertyFeed";
 import { useHomeFeedData } from "./HomePage/useHomeFeedData";
@@ -56,7 +39,6 @@ const PropertyHomePage = React.memo(function PropertyHomePage({
   setFilters,
   sort,
   setSort,
-  setTab,
   onOpenNotifications,
   unreadNotifCount = 0,
   viewingRequested,
@@ -71,16 +53,11 @@ const PropertyHomePage = React.memo(function PropertyHomePage({
   onFilterBarVisibilityChange,
   recommendationProfile,
   onSwitchMode,
-  appMode = "property",
-  commerceSavedIds = new Set(),
-  onToggleCommerceSave,
-  onConnectBuy,
 }) {
   const isTabletOrDesktop = useMediaQuery("(min-width: 768px)");
   const isDesktopLayout = useMediaQuery("(min-width: 1024px)");
-  const isFetchingRef = useRef(false);
 
-  const { cityProperties, propertyTypes, priceCeiling, sortedCityProperties, feed } = useHomeFeedData({
+  const { cityProperties, propertyTypes, priceCeiling, feed } = useHomeFeedData({
     properties, city, filters, sort, pinnedListingId, recommendationProfile,
   });
 

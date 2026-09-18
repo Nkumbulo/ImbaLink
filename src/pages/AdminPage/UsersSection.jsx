@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { T } from "../../styles/tokens";
-import { getAdminUsers, adminFormat } from "../../services/admin/adminAnalytics";
+import { getAdminUsers } from "../../services/admin/adminAnalytics";
 import { EmptyState, LoadingState, SearchInput, Pagination, StatusPill } from "./shared";
 
 const PAGE_SIZE = 20;

@@ -22,8 +22,8 @@ export default function RoommateFinderPage({
   liked,
   user,
   studentProfile,
-  studentVerificationStatus,
-  onUpdateStudentProfile,
+  studentVerificationStatus: _studentVerificationStatus,
+  onUpdateStudentProfile: _onUpdateStudentProfile,
   setTab,
   onOpenMessageThread,
   focusPropertyId,
@@ -57,7 +57,7 @@ export default function RoommateFinderPage({
   const toggleViewMode = () => setViewMode((prev) => (prev === "card" ? "compact" : "card"));
 
   const {
-    universities, myRequests, propertyRequesters, loadingPropertyRequesters, selectedRequesterId,
+    universities, myRequests, propertyRequesters: _propertyRequesters, loadingPropertyRequesters, selectedRequesterId: _selectedRequesterId,
     setSelectedRequesterId, propertyRequesterPage, setPropertyRequesterPage, propertyRequesterPageCount,
     visiblePropertyRequesters, myRequestForProperty, otherRequesters, selectedRequester,
     selectedRequesterCompatibility, togglingShareInterest, showRequestForm, setShowRequestForm,
@@ -73,7 +73,7 @@ export default function RoommateFinderPage({
 
   const {
     generalCandidates,
-    loadingCandidates,
+    loadingCandidates: _loadingCandidates,
     lastRecommendationRefresh,
     sortedCandidates,
     findARandomStudents,

@@ -1,12 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  getNotifications,
-  getUnreadNotificationCount,
-  markAllNotificationsRead as markAllNotificationsReadApi,
-  markNotificationRead as markNotificationReadApi,
-  resetAllNotifications as resetAllNotificationsApi,
-  subscribeToNotifications,
-} from "../core/data/domains/notifications.js";
+import { backend } from "../application/backend/index.js";
 import { notifyUser, prepareNotificationExperience, registerForPushNotifications, addPushTokenListener } from "../services/notifications/notificationEngine";
 
 /**
@@ -30,9 +23,10 @@ export default function useAppNotifications({ hydrated, currentUserId, onOpenNot
       return undefined;
     }
 
+    const notificationRepository = backend.notificationRepository;
     const refresh = () => {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
-      Promise.all([getNotifications(30), getUnreadNotificationCount()]).then(([list, count]) => {
+      Promise.all([notificationRepository.getNotifications(30), notificationRepository.getUnreadNotificationCount()]).then(([list, count]) => {
         if (!active) return;
         setNotifications(list);
         setUnreadNotifCount(count);
@@ -46,7 +40,7 @@ export default function useAppNotifications({ hydrated, currentUserId, onOpenNot
       void token;
     });
 
-    const unsubscribe = subscribeToNotifications(currentUserId, (row) => {
+    const unsubscribe = notificationRepository.subscribeToNotifications(currentUserId, (row) => {
       if (!active) return;
       setNotifications((current) => [row, ...current].slice(0, 30));
       setUnreadNotifCount((current) => current + 1);
@@ -72,7 +66,7 @@ export default function useAppNotifications({ hydrated, currentUserId, onOpenNot
         : notification
     )));
     setUnreadNotifCount((current) => Math.max(0, current - 1));
-    markNotificationReadApi(notificationId).catch(() => {});
+    notificationRepository.markNotificationRead(notificationId).catch(() => {});
   };
 
   const markAllNotificationsRead = () => {
@@ -82,7 +76,7 @@ export default function useAppNotifications({ hydrated, currentUserId, onOpenNot
         : { ...notification, readAt: new Date().toISOString() }
     )));
     setUnreadNotifCount(0);
-    markAllNotificationsReadApi().catch(() => {});
+    notificationRepository.markAllNotificationsRead().catch(() => {});
   };
 
   const resetAllNotifications = async () => {
@@ -94,7 +88,7 @@ export default function useAppNotifications({ hydrated, currentUserId, onOpenNot
     setUnreadNotifCount(0);
 
     try {
-      await resetAllNotificationsApi();
+      await notificationRepository.resetAllNotifications();
     } catch (error) {
       setNotifications(previous);
       setUnreadNotifCount(previous.filter((notification) => !notification.readAt).length);

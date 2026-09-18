@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from "react";
-import {AlertTriangle,ArrowUpRight,BarChart3,CheckCircle2,CircleDollarSign,Clock3,Info,RefreshCw,ShieldCheck,TrendingUp,Users,WalletCards} from "lucide-react";
+import {AlertTriangle,ArrowUpRight,BarChart3,CheckCircle2,CircleDollarSign,Clock3,Info,RefreshCw,ShieldCheck,TrendingUp,WalletCards} from "lucide-react";
 import {getMonetizationConfig,setMonetizationEnabled,getMonetizationAnalytics} from "../../services/admin/adminMonetization";
 import {adminFormat} from "../../services/admin/adminAnalytics";
 import useAdminRealtime from "../../hooks/useAdminRealtime";

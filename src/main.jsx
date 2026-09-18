@@ -9,7 +9,7 @@ import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Keyboard } from '@capacitor/keyboard';
-import { supabaseAuthProvider } from './auth/supabaseAuthProvider';
+import { backend } from './application/backend/index.js';
 import { startSyncCoordinator } from './core/sync/syncCoordinator';
 
 startSyncCoordinator();
@@ -74,7 +74,7 @@ async function bootstrap() {
   // listener has to already exist by the time that happens.
   if (Capacitor.isNativePlatform()) {
     CapacitorApp.addListener('appUrlOpen', ({ url }) => {
-      supabaseAuthProvider.handleNativeOAuthRedirect(url).catch((err) => {
+      backend.auth.handleNativeOAuthRedirect(url).catch((err) => {
         console.error('Native Google sign-in redirect failed:', err?.message || err);
       });
     });

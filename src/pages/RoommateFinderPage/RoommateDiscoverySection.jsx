@@ -1,11 +1,11 @@
-import { ArrowRight, Check, LayoutGrid, MessageCircle, Search, Sparkles, Square } from "lucide-react";
+import { ArrowRight, Check, LayoutGrid, Search, Sparkles, Square } from "lucide-react";
 import { T } from "../../styles/tokens";
 import Avatar from "../../components/common/Avatar";
 import { propertyPhoto } from "./helpers";
 import { VerificationBadge } from "./VerificationBadge";
 
 export default function RoommateDiscoverySection(props) {
-  const { query, setQuery, sortedCandidates, toggleViewMode, viewMode, openFindA, onFindRoommate, setSelectedId, openMessage, interested, toggleInterested, lastRecommendationRefresh } = props;
+  const { query, setQuery, sortedCandidates, toggleViewMode, viewMode, openFindA, onFindRoommate, setSelectedId, openMessage: _openMessage, interested, toggleInterested, lastRecommendationRefresh } = props;
   return (
             <section id="rf-discover" className="rf-section">
               <div className="rf-section-head">

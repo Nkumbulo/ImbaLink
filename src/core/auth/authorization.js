@@ -1,5 +1,5 @@
-import { supabase } from "../supabase/client";
 import { rpc } from "../data/rpc";
+import { backend } from "../../application/backend/index.js";
 
 // Mirrors backend/033-authorization-contract.sql's admin_authorization(),
 // which is the current, authoritative server-side role check (its own
@@ -28,10 +28,7 @@ export function isSuperAdminRole(role) {
  * operations MUST enforce authorization again in SQL/RPC/Edge Functions.
  */
 export async function getStaffAuthorization() {
-  const { data, error } = await supabase.auth.getUser();
-  if (error) throw error;
-
-  const user = data?.user || null;
+  const user = await backend.auth.getCurrentUser();
   const role = roleFromUser(user);
   if (!isAdminRole(role)) {
     return { user, role, isStaff: false, isSuperAdmin: false, accessStatus: "unauthorized" };

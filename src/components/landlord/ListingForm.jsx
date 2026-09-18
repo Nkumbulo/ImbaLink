@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { X, Plus, Loader2 } from "lucide-react";
 import { T } from "../../styles/tokens";
-import { MAX_IMAGES_PER_LISTING } from "../../services/media/imageStore";
-import Field from "./ListingForm/Field";
 import BasicFields from "./ListingForm/BasicFields";
 import PhotosField from "./ListingForm/PhotosField";
 import DetailsFields from "./ListingForm/DetailsFields";

@@ -1,7 +1,7 @@
 import { Link2, HomeIcon, Compass, Mail, Bookmark, Wrench, GraduationCap, User, ShoppingBag, PlusCircle } from "lucide-react";
 import UserAvatar from "../components/common/UserAvatar";
 
-function DesktopSidebar({ tab, setTab, unreadCount = 0, studentMode = false, appMode = "property", onSwitchMode }) {
+function DesktopSidebar({ tab, setTab, unreadCount = 0, studentMode = false, appMode = "property", onSwitchMode: _onSwitchMode }) {
   const items = appMode === "commerce"
     ? [
         { id: "home", label: "Marketplace", icon: ShoppingBag },

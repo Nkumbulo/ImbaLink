@@ -1,6 +1,4 @@
-import { ArrowRight, X } from "lucide-react";
-import { T } from "../../styles/tokens";
-import Avatar from "../../components/common/Avatar";
+import { X } from "lucide-react";
 import { computeRoommateCompatibility } from "../../utils/studentHelpers";
 
 export default function RoommateFindAModal({ showFindA, findAStudents, closeFindA, myProfile, setSelectedId, setFindAStudents, findARandomStudents }) {

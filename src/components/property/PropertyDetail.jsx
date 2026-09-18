@@ -31,7 +31,7 @@ export default function PropertyDetail({
   roommateCount = 0,
   onFindRoommate,
   onOpenProperty,
-  appMode = "property",
+  appMode: _appMode = "property",
 }) {
   // Desktop/tablet gets its own simple centered-card layout (built below)
   // instead of trying to reshape the mobile full-bleed sheet with CSS
@@ -87,8 +87,6 @@ export default function PropertyDetail({
   const overlayRef = useRef(null);
   const scrollableRef = useRef(null);
   const panelRef = useRef(null);
-
-  const COLLAPSED_PANEL_TOP = 294;
 
   useEffect(() => {
     const hideTimer = setTimeout(() => setHintLeaving(true), 4000);

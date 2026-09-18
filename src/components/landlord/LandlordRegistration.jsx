@@ -55,7 +55,7 @@ export default function LandlordRegistration({ onClose, onSubmit, profile }) {
     if (form.password !== form.confirmPassword) return setError("Passwords do not match.");
     if (!form.agreesTerms) return setError("Confirm that you have the legal right to list the properties you submit.");
 
-    const { confirmPassword, ...payload } = form;
+    const { confirmPassword: _confirmPassword, ...payload } = form;
     try {
       await onSubmit({
         ...payload,

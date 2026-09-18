@@ -1,11 +1,5 @@
 import { useCallback } from "react";
-import {
-  registerAgent as registerAgentApi,
-  registerCompany as registerCompanyApi,
-  registerContractor as registerContractorApi,
-  registerLandlord as registerLandlordApi,
-  registerPro as registerProApi,
-} from "../core/data/domains/registrations.js";
+import { backend } from "../application/backend/index.js";
 
 /**
  * Keeps hub-registration mutations together and enforces the single active
@@ -29,7 +23,7 @@ export default function useAppRegistrations({
 
   const registerContractor = useCallback(async (data) => {
     assertHubAvailable("contractor");
-    const record = await registerContractorApi({ ...data, userId: user?.id });
+    const record = await backend.registrationRepository.registerContractor({ ...data, userId: user?.id });
     setContractorRegistrations((current) => [
       record,
       ...current.filter((item) => item.id !== record.id),
@@ -39,7 +33,7 @@ export default function useAppRegistrations({
 
   const registerLandlord = useCallback(async (data) => {
     assertHubAvailable("landlord");
-    const record = await registerLandlordApi({ ...data, userId: user?.id });
+    const record = await backend.registrationRepository.registerLandlord({ ...data, userId: user?.id });
     setLandlordRegistration(record);
     setHubWelcome("landlord");
     return record;
@@ -47,21 +41,21 @@ export default function useAppRegistrations({
 
   const registerAgent = useCallback(async (data) => {
     assertHubAvailable("agent");
-    const record = await registerAgentApi({ ...data, userId: user?.id });
+    const record = await backend.registrationRepository.registerAgent({ ...data, userId: user?.id });
     setAgentRegistration(record);
     return record;
   }, [assertHubAvailable, setAgentRegistration, user?.id]);
 
   const registerCompany = useCallback(async (data) => {
     assertHubAvailable("company");
-    const record = await registerCompanyApi({ ...data, userId: user?.id });
+    const record = await backend.registrationRepository.registerCompany({ ...data, userId: user?.id });
     setCompanyRegistration(record);
     setHubWelcome("company");
     return record;
   }, [assertHubAvailable, setCompanyRegistration, setHubWelcome, user?.id]);
 
   const registerPro = useCallback(async (data) => {
-    const record = await registerProApi({ ...data, userId: user?.id });
+    const record = await backend.registrationRepository.registerPro({ ...data, userId: user?.id });
     setProRegistration(record);
     return record;
   }, [setProRegistration, user?.id]);

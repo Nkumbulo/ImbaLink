@@ -8,6 +8,7 @@ import { invalidatePropertyCache, readPropertySaveCounts } from './queries';
 import { idbGet, idbGetAll, idbPut, idbDelete } from '../../../infrastructure/indexeddb';
 import { enqueue } from '../../../sync/outbox';
 import { retryWithBackoff } from '../../../../services/utils/retryWithBackoff';
+import { getStoragePort } from '../shared/storagePort';
 
 // --- Landlord listings ---
 // Listings are properties with an owner. Seeded catalog rows have
@@ -26,7 +27,6 @@ export async function getLandlordListings(userId = null) {
   const ids = (data || []).map((r) => String(r.id));
   const localRows = (await idbGetAll('landlordListings').catch(() => []))
     .filter((r) => String(r.userId || '') === String(userId || r.userId || '') && !r.deleted);
-  const localById = new Map(localRows.map((r) => [String(r.id), r]));
   let byProperty = new Map();
   if (ids.length) {
     const { data: imageRows } = await supabase
@@ -73,6 +73,8 @@ async function uploadListingPhotosFirst({ propertyId, ownerId, mediaIds, onPhoto
     }
     const path = `${ownerId}/${propertyId}/${position}.jpg`;
 
+    const storage = getStoragePort();
+
     // The actual fix for "fails after 10 manual tries": a single dropped
     // connection or a slow mobile network blip used to fail this ONE
     // photo's upload, which failed the whole Promise.all below, which
@@ -83,21 +85,18 @@ async function uploadListingPhotosFirst({ propertyId, ownerId, mediaIds, onPhoto
     // reserved for genuinely exhausted retries, not routine network
     // hiccups.
     await retryWithBackoff(async () => {
-      const { error } = await supabase.storage
-        .from('property-images')
-        .upload(path, record.blob, {
+      await storage.upload('property-images', path, record.blob, {
           contentType: 'image/jpeg',
           upsert: true,
           cacheControl: '31536000',
         });
-      if (error) throw error;
     });
 
-    const { data: publicData } = supabase.storage.from('property-images').getPublicUrl(path);
-    if (!publicData?.publicUrl) throw new Error('Supabase did not return a public photo URL.');
+    const publicUrl = storage.getUrl('property-images', path);
+    if (!publicUrl) throw new Error('Storage backend did not return a public photo URL.');
     uploaded[position] = {
       path,
-      url: publicData.publicUrl,
+      url: publicUrl,
       position,
       bytes: record.bytes,
       width: record.width,
@@ -117,7 +116,7 @@ async function uploadListingPhotosFirst({ propertyId, ownerId, mediaIds, onPhoto
     return uploaded.filter(Boolean);
   } catch (error) {
     const paths = uploaded.filter(Boolean).map((item) => item.path);
-    if (paths.length) await supabase.storage.from('property-images').remove(paths).catch(() => {});
+    if (paths.length) await getStoragePort().remove('property-images', paths).catch(() => {});
     throw new Error(`LISTING_PHOTO_UPLOAD_FAILED: ${error?.message || 'One or more photos could not be uploaded.'}`, { cause: error });
   }
 }
@@ -215,10 +214,7 @@ export async function createLandlordListing(input, { onProgress } = {}) {
   } catch (error) {
     // Do not leave orphaned files or a half-created listing when either the
     // property insert or image metadata insert fails.
-    await supabase.storage
-      .from('property-images')
-      .remove(uploadedPhotos.map((item) => item.path))
-      .catch(() => {});
+    await getStoragePort().remove('property-images', uploadedPhotos.map((item) => item.path)).catch(() => {});
 
     await supabase.from('property_images').delete().eq('property_id', id).catch(() => {});
     await supabase.from('properties').delete().eq('id', id).eq('owner_user_id', String(ownerId)).catch(() => {});
@@ -243,6 +239,7 @@ export async function createLandlordListing(input, { onProgress } = {}) {
 // (a small, non-security cleanup gap, not a data-correctness one).
 export async function updateLandlordListing(propertyId, input, { onProgress } = {}) {
   const ownerId = requireUser();
+  const storage = getStoragePort();
   const id = String(propertyId || '');
   if (!id) throw new Error('Listing id is required.');
 
@@ -323,18 +320,15 @@ export async function updateLandlordListing(propertyId, input, { onProgress } = 
     // network blip on one edited photo shouldn't force restarting the
     // whole save.
     await retryWithBackoff(async () => {
-      const { error: uploadError } = await supabase.storage
-        .from('property-images')
-        .upload(path, record.blob, {
-          contentType: 'image/jpeg', upsert: false, cacheControl: '31536000',
-        });
-      if (uploadError) throw uploadError;
+      await storage.upload('property-images', path, record.blob, {
+        contentType: 'image/jpeg', upsert: false, cacheControl: '31536000',
+      });
     });
 
-    const { data: publicData } = supabase.storage.from('property-images').getPublicUrl(path);
-    if (!publicData?.publicUrl) throw new Error('Supabase did not return a public photo URL.');
+    const publicUrl = storage.getUrl('property-images', path);
+    if (!publicUrl) throw new Error('Storage backend did not return a public photo URL.');
     finalPhotos[position] = {
-      url: publicData.publicUrl, bytes: record.bytes, width: record.width, height: record.height,
+      url: publicUrl, bytes: record.bytes, width: record.width, height: record.height,
     };
     uploadedPaths.push(path);
     uploadedMediaIds.push(mediaId);
@@ -354,7 +348,7 @@ export async function updateLandlordListing(propertyId, input, { onProgress } = 
       }
     }));
   } catch (uploadError) {
-    await supabase.storage.from('property-images').remove(uploadedPaths).catch(() => {});
+    await getStoragePort().remove('property-images', uploadedPaths).catch(() => {});
     throw new Error(`LISTING_PHOTO_UPLOAD_FAILED: ${uploadError?.message || 'The photo could not be uploaded.'}`, { cause: uploadError });
   }
 
@@ -375,7 +369,7 @@ export async function updateLandlordListing(propertyId, input, { onProgress } = 
     .delete()
     .eq('property_id', id);
   if (deleteImageError) {
-    await supabase.storage.from('property-images').remove(uploadedPaths).catch(() => {});
+    await getStoragePort().remove('property-images', uploadedPaths).catch(() => {});
     throw new Error(`LISTING_PHOTO_METADATA_FAILED: ${deleteImageError.message}`);
   }
 
@@ -397,7 +391,7 @@ export async function updateLandlordListing(propertyId, input, { onProgress } = 
         id: newId('img'), property_id: id, url: item.url, position: item.position ?? index,
       }))).catch(() => {});
     }
-    await supabase.storage.from('property-images').remove(uploadedPaths).catch(() => {});
+    await getStoragePort().remove('property-images', uploadedPaths).catch(() => {});
     throw new Error(`LISTING_PHOTO_METADATA_FAILED: ${imageError.message || 'Photo metadata could not be saved.'}`);
   }
 
@@ -418,7 +412,7 @@ export async function updateLandlordListing(propertyId, input, { onProgress } = 
         id: newId('img'), property_id: id, url: item.url, position: item.position ?? index,
       }))).catch(() => {});
     }
-    await supabase.storage.from('property-images').remove(uploadedPaths).catch(() => {});
+    await getStoragePort().remove('property-images', uploadedPaths).catch(() => {});
     if (error) throw new Error(`LISTING_UPDATE_FAILED: ${error.message || 'The listing could not be updated.'}`);
     throw new Error('LISTING_UPDATE_NOT_AUTHORIZED: This listing does not belong to your account.');
   }
@@ -443,7 +437,7 @@ export async function updateLandlordListing(propertyId, input, { onProgress } = 
       }
     })
     .filter(Boolean);
-  if (oldPaths.length) await supabase.storage.from('property-images').remove(oldPaths).catch(() => {});
+  if (oldPaths.length) await getStoragePort().remove('property-images', oldPaths).catch(() => {});
 
   for (const mediaId of uploadedMediaIds) await deleteMedia(mediaId);
 
@@ -531,10 +525,11 @@ export async function deleteLandlordListing(propertyId) {
     .map((row) => `${ownerId}/${id}/${Number(row.position) || 0}.jpg`)
     .filter(Boolean);
   if (storagePaths.length) {
-    const { error: storageError } = await supabase.storage
-      .from('property-images')
-      .remove(storagePaths);
-    if (storageError) console.warn('Listing photo cleanup failed:', storageError.message);
+    try {
+      await getStoragePort().remove('property-images', storagePaths);
+    } catch (storageError) {
+      console.warn('Listing photo cleanup failed:', storageError?.message || storageError);
+    }
   }
 
   const { error } = await supabase

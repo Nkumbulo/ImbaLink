@@ -1,4 +1,4 @@
-import { getUniversities } from '../../core/data/domains/students.js';
+import { backend } from '../../application/backend/index.js';
 import { useState, useEffect } from "react";
 import { GraduationCap, UserRound, Briefcase, KeyRound, ArrowRight, ArrowLeft } from "lucide-react";
 import { T } from "../../styles/tokens";
@@ -57,7 +57,7 @@ export default function UserOnboarding() {
   useEffect(() => {
     if (!needsProfile) return;
     let active = true;
-    getUniversities()
+    backend.studentRepository.getUniversities()
       .then((rows) => {
         if (!active) return;
         setUniversities(rows);

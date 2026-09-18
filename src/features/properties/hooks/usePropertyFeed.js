@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  createLandlordListing as createLandlordListingApi,
-  deleteLandlordListing as deleteLandlordListingApi,
-  getProperties,
-  subscribeToPropertyFeed,
-  updateLandlordListing as updateLandlordListingApi,
-} from '../../../core/data/domains/properties.js';
+import { backend } from '../../../application/backend/index.js';
 import { localCache } from '../../../core/cache';
 
 const MOBILE_FEED_TIMEOUT_MS = 6500;
@@ -47,7 +41,7 @@ const propertyMatches = (property, { city, filters, query }) => {
   return true;
 };
 
-export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit = 24, hydrated = false, landlordListings = [], setLandlordListings }) {
+export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit = 24, hydrated: _hydrated = false, landlordListings = [], setLandlordListings }) {
   const [loaded, setLoaded] = useState(false);
   const [properties, setProperties] = useState([]);
   const [page, setPage] = useState(1);
@@ -75,7 +69,7 @@ export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit 
 
     if (cached?.hasCache && !cached.stale) return;
     try {
-      const res = await withTimeout(getProperties({ page: 1, limit, city, ...filters, query }), MOBILE_FEED_TIMEOUT_MS, null);
+      const res = await withTimeout(backend.propertyRepository.getProperties({ page: 1, limit, city, ...filters, query }), MOBILE_FEED_TIMEOUT_MS, null);
       if (id !== requestId.current || !res) return;
       const value = {
         data: Array.isArray(res.data) ? res.data : [],
@@ -110,7 +104,7 @@ export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit 
 
   useEffect(() => {
     if (!loaded) return undefined;
-    return subscribeToPropertyFeed(({ eventType, propertyId, property, imageUrl, images, saveCount }) => {
+    const subscription = backend.realtime.subscribe('property-feed', ({ eventType, propertyId, property, imageUrl, images, saveCount }) => {
       setProperties((current) => {
         if (eventType === 'DELETE') return current.filter((item) => String(item.id) !== String(propertyId));
         if (eventType === 'SAVE_COUNT') return current.map((item) => String(item.id) === String(propertyId) ? { ...item, saveCount: Number(saveCount) || 0 } : item);
@@ -128,6 +122,8 @@ export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit 
         setLandlordListings((current) => current.map((item) => String(item.id) === String(propertyId) ? { ...item, saveCount: Number(saveCount) || 0 } : item));
       }
     });
+
+    return () => backend.realtime.unsubscribe(subscription);
   }, [loaded, city, filters.suburb, filters.type, filters.minPrice, filters.maxPrice, filters.verifiedOnly, query, setLandlordListings]);
 
   useEffect(() => { void loadFirst(); }, [loadFirst]);
@@ -139,7 +135,7 @@ export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit 
     const nextPage = page + 1;
     try {
       const request = requestId.current;
-      const res = await getProperties({ page: nextPage, limit, city, ...filters, query });
+      const res = await backend.propertyRepository.getProperties({ page: nextPage, limit, city, ...filters, query });
       if (request !== requestId.current) return;
       setProperties((prev) => {
         const seen = new Set(prev.map((p) => String(p.id)));
@@ -156,7 +152,7 @@ export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit 
   }, [page, hasMore, loadingMore, loaded, city, filters.suburb, filters.type, filters.minPrice, filters.maxPrice, filters.verifiedOnly, query, limit]);
 
   const createLandlordListing = useCallback(async (input, options) => {
-    const record = await createLandlordListingApi(input, options);
+    const record = await backend.propertyRepository.createProperty(input, options);
     setLandlordListings((current) => [record, ...current.filter((item) => String(item.id) !== String(record.id))].slice(0, 500));
     return record;
   }, [setLandlordListings]);
@@ -169,14 +165,14 @@ export function usePropertyFeed({ city = 'All', filters = {}, query = '', limit 
   }, [setLandlordListings]);
 
   const deleteLandlordListing = useCallback(async (propertyId) => {
-    const id = await deleteLandlordListingApi(propertyId);
+    const id = await backend.propertyRepository.deleteProperty(propertyId);
     setLandlordListings((current) => current.filter((item) => String(item.id) !== String(id)));
     setProperties((current) => current.filter((item) => String(item.id) !== String(id)));
     return id;
   }, [setLandlordListings]);
 
   const updateLandlordListing = useCallback(async (propertyId, input, options) => {
-    const record = await updateLandlordListingApi(propertyId, input, options);
+    const record = await backend.propertyRepository.updateProperty(propertyId, input, options);
     setLandlordListings((current) => current.map((item) => String(item.id) === String(record.id) ? record : item));
     setProperties((current) => current.map((item) => String(item.id) === String(record.id) ? record : item));
     return record;

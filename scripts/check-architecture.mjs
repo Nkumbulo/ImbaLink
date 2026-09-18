@@ -53,15 +53,24 @@ for (const file of files) {
   const r = rel(file);
   const text = sourceWithoutComments(fs.readFileSync(file, "utf8"));
 
+  // Supabase SDK ownership: only the provider infrastructure may import the
+  // SDK directly. Auth is an explicit exception because the current auth
+  // provider is itself an infrastructure boundary and is being migrated later.
+  if (!r.startsWith("infrastructure/supabase/") && !r.startsWith("auth/")) {
+    if (/from\s*["']@supabase\/supabase-js["']/.test(text)) {
+      violations.push(`${r}: imports Supabase SDK outside infrastructure/auth`);
+    }
+  }
+
   // Data access belongs behind the core data/domain boundary or an explicitly
   // marked infrastructure/auth boundary. UI must never become a data layer.
-  if (!r.startsWith("services/") && !r.startsWith("core/") && !r.startsWith("auth/")) {
+  if (!r.startsWith("services/") && !r.startsWith("core/") && !r.startsWith("auth/") && !r.startsWith("infrastructure/")) {
     if (/supabase\.(from|rpc|functions\.invoke)\s*\(/.test(text)) {
       violations.push(`${r}: direct Supabase data access outside services/core/auth`);
     }
   }
 
-  if (!r.startsWith("services/") && !r.startsWith("core/") && !r.startsWith("auth/")) {
+  if (!r.startsWith("services/") && !r.startsWith("core/") && !r.startsWith("auth/") && !r.startsWith("infrastructure/")) {
     if (/from\s*["'][^"']*services\/(database|db\/|supabase)[^"']*["']/.test(text)) {
       violations.push(`${r}: imports legacy/infrastructure data service directly`);
     }

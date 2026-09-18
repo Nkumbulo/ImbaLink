@@ -2,7 +2,7 @@ import { HomeIcon, Compass, Mail, Wrench, User, GraduationCap, ShoppingBag, Plus
 import { T } from "../styles/tokens";
 import UserAvatar from "../components/common/UserAvatar";
 
-function TabletBottomNav({ tab, setTab, unreadCount = 0, studentMode = false, appMode = "property", onSwitchMode }) {
+function TabletBottomNav({ tab, setTab, unreadCount = 0, studentMode = false, appMode = "property", onSwitchMode: _onSwitchMode }) {
   const items = appMode === "commerce"
     ? [
         { id: "home", icon: ShoppingBag, label: "Shop" },

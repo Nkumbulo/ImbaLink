@@ -1,4 +1,5 @@
-import { supabase } from '../../supabase/client';
+/** @deprecated Compatibility adapter. Prefer backend.supportRepository. */
+import { supabase } from '../../../services/supabase.js';
 import { createSupportService } from '../implementations/support/support';
 
 const service = createSupportService({

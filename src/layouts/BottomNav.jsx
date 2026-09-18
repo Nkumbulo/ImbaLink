@@ -1,4 +1,4 @@
-import { HomeIcon, Search, MessageCircle, User, Wrench, GraduationCap, ShoppingBag, PlusCircle, Heart } from "lucide-react";
+import { HomeIcon, Search, MessageCircle, User, Wrench, GraduationCap, ShoppingBag, PlusCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { T } from "../styles/tokens";
 import UserAvatar from "../components/common/UserAvatar";

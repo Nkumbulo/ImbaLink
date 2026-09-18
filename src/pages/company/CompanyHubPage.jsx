@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Plus, Home, UsersRound, MessageCircle, ShieldCheck, ChevronRight, Clock3, BarChart3, Download } from "lucide-react";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import { T } from "../../styles/tokens";
@@ -12,7 +12,15 @@ function DonutChart({ data, colors, size = 120, strokeWidth = 12 }) {
   const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  let offset = 0;
+  // Cumulative offset per segment, computed as a pure derivation instead of
+  // mutating a shared `offset` variable inside .map() below — each
+  // segment's starting offset is the running total of every prior
+  // segment's dash length. Same visual result, no render-time mutation.
+  const dashes = data.map((item) => (item.value / total) * circumference);
+  const offsets = dashes.reduce((acc, dash, i) => {
+    acc.push(i === 0 ? 0 : acc[i - 1] + dashes[i - 1]);
+    return acc;
+  }, []);
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -24,9 +32,9 @@ function DonutChart({ data, colors, size = 120, strokeWidth = 12 }) {
         stroke="#eee"
         strokeWidth={strokeWidth}
       />
-      {data.map((item, i) => {
-        const dash = (item.value / total) * circumference;
-        const circle = (
+      {data.map((_item, i) => {
+        const dash = dashes[i];
+        return (
           <circle
             key={i}
             cx={size / 2}
@@ -36,12 +44,10 @@ function DonutChart({ data, colors, size = 120, strokeWidth = 12 }) {
             stroke={colors[i]}
             strokeWidth={strokeWidth}
             strokeDasharray={`${dash} ${circumference - dash}`}
-            strokeDashoffset={-offset}
+            strokeDashoffset={-offsets[i]}
             transform={`rotate(-90 ${size / 2} ${size / 2})`}
           />
         );
-        offset += dash;
-        return circle;
       })}
     </svg>
   );

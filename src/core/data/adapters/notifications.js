@@ -1,13 +1,10 @@
-/** Infrastructure adapter: canonical notification persistence boundary. */
-import { supabase } from '../../../services/supabase';
-import { activeUserKey } from '../domains/shared/identity';
-import { createNotificationService } from '../implementations/notifications/notifications';
-
-export const {
+/** @deprecated Compatibility facade. Canonical notification repository lives in infrastructure. */
+export {
+  supabaseNotificationRepository,
   getNotifications,
   getUnreadNotificationCount,
   markNotificationRead,
   markAllNotificationsRead,
   resetAllNotifications,
   subscribeToNotifications,
-} = createNotificationService({ supabase, activeUserKey });
+} from "../../../infrastructure/supabase/adapters/notifications";

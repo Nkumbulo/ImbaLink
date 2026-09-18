@@ -42,7 +42,6 @@ export function MessageList({
               `${msg.ts ?? "message"}-${idx}`;
             const messageText = String(msg.text || "");
             const isViewingRequestMessage = /^I would like to request a viewing(?: of .+)?\.$/i.test(messageText);
-            const requestedPropertyTitle = messageText.match(/^I would like to request a viewing(?: of (.+))?\.$/i)?.[1]?.trim() || "";
             const isResolvedViewingRequest = isViewingRequestMessage
               && msg.attachment?.type === "property"
               && VIEWING_TERMINAL_STATUSES.includes(msg.viewingRequestStatus);

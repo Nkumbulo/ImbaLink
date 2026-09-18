@@ -32,7 +32,7 @@ export default function SearchPage({
   onSend,
   onOpenMessage,
   appMode = "property",
-  onSwitchMode,
+  onSwitchMode: _onSwitchMode,
 }) {
   const isTabletOrDesktop = useMediaQuery("(min-width: 768px)");
   const isOnline = useOnlineStatus();

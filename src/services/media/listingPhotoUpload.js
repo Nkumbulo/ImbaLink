@@ -15,7 +15,7 @@
  * listing can be created from a component that closes immediately, and
  * the upload must not be tied to that lifecycle.
  */
-import { supabase } from '../supabase';
+import { backend } from '../../application/backend';
 import { newId } from '../ids';
 import { getMediaRecord, assignOwner } from './imageStore';
 import { idbGet, idbGetAll, idbPut } from '../../core/infrastructure/indexeddb';
@@ -76,13 +76,10 @@ async function runUpload(propertyId, ownerId, mediaIds) {
         continue;
       }
       const path = `${ownerId}/${id}/${position}.jpg`;
-      const { error: uploadError } = await supabase.storage
-        .from('property-images')
-        .upload(path, record.blob, { contentType: 'image/jpeg', upsert: true, cacheControl: '31536000' });
-      if (uploadError) throw uploadError;
+      await backend.storage.upload('property-images', path, record.blob, { contentType: 'image/jpeg', upsert: true, cacheControl: '31536000' });
 
-      const { data: publicData } = supabase.storage.from('property-images').getPublicUrl(path);
-      if (!publicData?.publicUrl) throw new Error('Supabase did not return a public photo URL.');
+      const publicUrl = backend.storage.getUrl('property-images', path);
+      if (!publicUrl) throw new Error('Storage did not return a public photo URL.');
 
       uploadedUrls.push({
         url: publicData.publicUrl, position,

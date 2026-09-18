@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Check, X, Palette } from "lucide-react";
-import { T } from "../../styles/tokens";
 import { THEMES } from "./constants";
 
 function ThemeModal({ theme, onSelect, onClose }) {

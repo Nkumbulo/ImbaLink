@@ -1,21 +1,27 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X, CheckCircle2, ChevronRight } from "lucide-react";
 import { T } from "../../styles/tokens";
-import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 const COMPANY_TYPES=["Real Estate Agency","Property Management Firm","Property Developer","Construction Company","Facilities Management","Investment / Holding Company","Other"];
 const SERVICES=["Property Sales","Property Letting","Property Management","New Developments","Valuations","Facilities Management","Consultation","Construction & Renovation"];
 const YEARS=["Less than 1 year","1–2 years","3–5 years","6–10 years","10+ years"];
 const AREAS=["Harare CBD","Avondale","Borrowdale","Chisipite","Eastlea","Greendale","Hatfield","Highlands","Mbare","Mount Pleasant","Newlands","Westgate","Westlea","Other Harare areas"];
 const STAFF_SIZES=["1–5","6–15","16–50","51–100","100+"];
+// Field must be defined outside the component — the same fix already
+// applied in ContractorRegistration.jsx/LandlordRegistration.jsx (see the
+// "Move Field outside the component" comment there). A component defined
+// inside a render function is a new function reference every render, so
+// React treats every <Field> as a different component type on each
+// keystroke and remounts its entire subtree — including the real <input>
+// DOM node inside it — which drops focus after every character typed.
+const Field=({label,children})=><label className="block"><span className="f-body font-semibold block mb-1.5" style={{color:T.ink60,fontSize:10}}>{label}</span>{children}</label>;
 export default function CompanyRegistration({onClose,onSubmit,profile}){
  const [step,setStep]=useState(1); const [error,setError]=useState("");
  const [form,setForm]=useState({companyName:"",tradingName:"",repName:`${profile?.firstName || ""} ${profile?.surname || ""}`.trim(),repRole:"",phone:profile?.phone || "",email:"",registeredAddress:"",username:"",password:"",confirmPassword:"",companyType:"",services:[],areas:[],yearsOperating:"",staffSize:"",registrationNumber:"",eaczNumber:"",taxNumber:"",directorIdType:"National ID",directorIdNumber:"",description:"",offersValuations:false,acceptsListingLeads:true,agreesTerms:false});
  const update=(k,v)=>setForm(f=>({...f,[k]:v})); const toggle=(k,v)=>setForm(f=>({...f,[k]:f[k].includes(v)?f[k].filter(x=>x!==v):[...f[k],v]}));
  const next=()=>{setError("");if(step===1&&(!form.companyName.trim()||!form.repName.trim()||!form.phone.trim()||!form.email.trim()))return setError("Complete your company and representative contact details.");if(step===1&&!form.username.trim())return setError("Choose a username for your company login.");if(step===1&&(!form.password||form.password.length<6))return setError("Password must be at least 6 characters.");if(step===1&&form.password!==form.confirmPassword)return setError("Passwords do not match.");if(step===2&&(!form.companyType||!form.services.length||!form.areas.length))return setError("Select your company type, services and service areas.");setStep(s=>Math.min(4,s+1));};
- const submit=async e=>{e.preventDefault();if(!form.agreesTerms)return setError("You must confirm the registration declaration.");const {confirmPassword,...payload}=form;try{await onSubmit({...payload,companyName:form.companyName.trim(),tradingName:form.tradingName.trim(),repName:form.repName.trim(),description:form.description.trim(),username:form.username.trim()});}catch(err){setError(err?.message||"Could not complete company registration.");}};
+ const submit=async e=>{e.preventDefault();if(!form.agreesTerms)return setError("You must confirm the registration declaration.");const {confirmPassword:_confirmPassword,...payload}=form;try{await onSubmit({...payload,companyName:form.companyName.trim(),tradingName:form.tradingName.trim(),repName:form.repName.trim(),description:form.description.trim(),username:form.username.trim()});}catch(err){setError(err?.message||"Could not complete company registration.");}};
  const input="w-full rounded-xl px-3 py-2.5 f-body outline-none",style={background:T.paperDim,color:T.ink,border:`1px solid ${T.line}`,fontSize:12};
- const Field=({label,children})=><label className="block"><span className="f-body font-semibold block mb-1.5" style={{color:T.ink60,fontSize:10}}>{label}</span>{children}</label>;
  return <div className="fixed inset-0 z-[1000] sm:z-50 flex items-end sm:items-center justify-center form-modal-backdrop" style={{background:"rgba(20,32,26,.68)"}}><form onSubmit={submit} className="w-full sm:max-w-xl rounded-t-[28px] sm:rounded-[28px] p-5 form-modal-panel" style={{background:T.paper,maxHeight:"92%",overflowY:"auto"}}>
   <div className="flex justify-between items-start mb-4"><div><div className="f-display font-bold" style={{color:T.ink,fontSize:18}}>Register a company</div><div className="f-body mt-1" style={{color:T.ink60,fontSize:10.5}}>Your profile is reviewed before the verified badge is issued.</div></div><button type="button" onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{background:T.paperDim}}><X size={17}/></button></div>
   <div className="flex gap-1.5 mb-5">{[1,2,3,4].map(n=><div key={n} className="h-1.5 rounded-full flex-1" style={{background:n<=step?T.brick:T.line}}/>)}</div>

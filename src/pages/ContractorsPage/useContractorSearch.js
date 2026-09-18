@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { setContractorLike } from "../../core/data/domains/interactions.js";
-import { createQuoteRequest } from "../../core/data/domains/quotes.js";
+import { backend } from "../../application/backend";
 
 export function useContractorSearch({ contractors, setLiked, setMessagesState, setTab }) {
   const [showRegistration, setShowRegistration] = useState(false);
@@ -73,7 +73,7 @@ export function useContractorSearch({ contractors, setLiked, setMessagesState, s
     const message = `Quote requested from ImbaLink for ${contractorName}`;
 
     try {
-      await createQuoteRequest({
+      await backend.quoteRepository.createQuoteRequest({
         contractorId: contractor.id,
         contractorName,
         requesterType: "tenant",

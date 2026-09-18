@@ -1,5 +1,4 @@
-import { saveUserProfile } from '../../core/data/domains/profile.js';
-import { getUniversities } from '../../core/data/domains/students.js';
+import { backend } from '../../application/backend/index.js';
 import { useState, useEffect } from "react";
 import { GraduationCap, MapPin } from "lucide-react";
 import { T } from "../../styles/tokens";
@@ -31,7 +30,7 @@ function StudentProfileSection({ studentProfile, verificationStatus, onRequestVe
 
   useEffect(() => {
     let active = true;
-    getUniversities().then((rows) => {
+    backend.studentRepository.getUniversities().then((rows) => {
       if (!active) return;
       setUniversities(rows);
       setForm((f) => ({ ...f, university: f.university || rows[0]?.name || "" }));

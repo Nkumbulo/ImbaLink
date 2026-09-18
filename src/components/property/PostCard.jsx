@@ -21,7 +21,7 @@ const PostCard = memo(function PostCard({
   onOpenLister,
   viewingRequested,
   onRequestViewing,
-  onSend,
+  onSend: _onSend,
   onOpenMessage,
   showDistance = true,
   hideCard = false,

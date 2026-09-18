@@ -1,6 +1,5 @@
-/** Infrastructure adapter: canonical listing-report persistence boundary. */
-import { supabase } from '../../../services/supabase';
-import { activeUserKey } from '../domains/shared/identity';
-import { createReportService } from '../implementations/reports/reports';
+/** Compatibility facade: listing reports use the application backend boundary. */
+import { backend } from "../../../application/backend/index.js";
 
-export const { reportListing, getMyReportForListing } = createReportService({ supabase, activeUserKey });
+export const reportListing = (...args) => backend.reportRepository.reportListing(...args);
+export const getMyReportForListing = (...args) => backend.reportRepository.getMyReportForListing(...args);

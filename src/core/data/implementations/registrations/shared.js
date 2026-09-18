@@ -2,7 +2,7 @@ import { supabase } from '../../../../services/supabase';
 import { newId } from '../../../../services/ids';
 import { isObject } from '../shared/helpers';
 import { requireCurrentUserId } from '../shared/identity';
-import { withHashedCredentials } from '../session/session';
+import { withHashedCredentials } from '../shared/credentials';
 import { idbPut } from '../../../infrastructure/indexeddb';
 import { enqueue } from '../../../sync/outbox';
 

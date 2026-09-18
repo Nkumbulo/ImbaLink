@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Eye, Trash2, X, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Trash2, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { T } from "../../styles/tokens";
 import { getAdminProperties, adminFormat } from "../../services/admin/adminAnalytics";
 import { getAdminPropertyImages, deleteAdminPropertyImage } from "../../services/admin/adminTools";

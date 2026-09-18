@@ -2,6 +2,7 @@ import { supabase } from '../../../../services/supabase';
 import { newId } from '../../../../services/ids';
 import { activeUserKey, requireUser } from '../shared/identity';
 import { readRegistration, readRegistrations, writeRegistration } from './shared';
+import { getStoragePort } from '../shared/storagePort';
 
 export async function registerLandlord(input) {
   return writeRegistration('landlord', input, 'landlordreg');
@@ -55,14 +56,16 @@ export async function submitLandlordVerification({ phone, file } = {}) {
   const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
   const path = `${userId}/id-${Date.now()}.${ext}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from('identity-documents')
-    .upload(path, file, {
+  const storage = getStoragePort();
+  try {
+    await storage.upload('identity-documents', path, file, {
       contentType: file.type,
       upsert: false,
       cacheControl: '3600',
     });
-  if (uploadError) throw uploadError;
+  } catch (uploadError) {
+    throw uploadError;
+  }
 
   const existing = await getLandlordVerification(userId);
   const id = existing?.id || newId('landlordverify');
@@ -84,7 +87,7 @@ export async function submitLandlordVerification({ phone, file } = {}) {
     .single();
   if (error) {
     // Do not leave an orphaned private ID document when the database write fails.
-    await supabase.storage.from('identity-documents').remove([path]).catch(() => {});
+    await getStoragePort().remove('identity-documents', [path]).catch(() => {});
     throw error;
   }
   return {

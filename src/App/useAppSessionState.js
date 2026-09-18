@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAgentRegistration, getCompanyRegistration } from "../core/data/domains/registrations.js";
+import { backend } from "../application/backend/index.js";
 
 /** Keeps auth-driven profile/registration state and logout cleanup out of App.jsx. */
 export default function useAppSessionState({
@@ -23,10 +23,10 @@ export default function useAppSessionState({
     }
     let active = true;
     const userId = user.id;
-    getAgentRegistration(userId).then((record) => {
+    backend.registrationRepository.getAgentRegistration(userId).then((record) => {
       if (active) setAgentRegistration(record || null);
     }).catch(() => {});
-    getCompanyRegistration(userId).then((record) => {
+    backend.registrationRepository.getCompanyRegistration(userId).then((record) => {
       if (active) setCompanyRegistration(record || null);
     }).catch(() => {});
     return () => { active = false; };

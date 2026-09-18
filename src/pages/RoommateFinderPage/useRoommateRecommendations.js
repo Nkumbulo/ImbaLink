@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getStudentRecommendations } from "../../core/data/domains/students.js";
+import { backend } from "../../application/backend/index.js";
 import { computeRoommateCompatibility } from "../../utils/studentHelpers";
 
 const RECOMMENDATION_LIMIT = 12;
@@ -20,7 +20,7 @@ export function useRoommateRecommendations({ properties = [], userId, myProfile,
     setLoadingCandidates(true);
     try {
       const excludeIds = refresh ? recommendationIdsRef.current.slice() : [];
-      const incoming = await getStudentRecommendations({
+      const incoming = await backend.studentRepository.getStudentRecommendations({
         limit: RECOMMENDATION_LIMIT,
         excludeIds,
       });
@@ -84,7 +84,7 @@ export function useRoommateRecommendations({ properties = [], userId, myProfile,
     let active = true;
     (async () => {
       try {
-        const rows = await getStudentRecommendations({ limit: RECOMMENDATION_LIMIT });
+        const rows = await backend.studentRepository.getStudentRecommendations({ limit: RECOMMENDATION_LIMIT });
         if (!active) return;
         const initial = rows.map((candidate) => ({
           ...candidate,

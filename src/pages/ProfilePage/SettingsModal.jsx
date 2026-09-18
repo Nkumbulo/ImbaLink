@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { T } from "../../styles/tokens";
 import { THEMES } from "./constants";
-import { getPublishedLegalDocument } from "../../core/data/domains/legalDocuments";
+import { backend } from "../../application/backend/index.js";
 
 const LANGUAGE_OPTIONS = [
   { id: "en", label: "English", note: "Primary app language", available: true },
@@ -110,9 +110,9 @@ export default function SettingsModal({
     setLegalError("");
     setLegalLoading(true);
     try {
-      const doc = await getPublishedLegalDocument("terms-of-service");
+      const doc = await backend.legalDocumentRepository.getPublishedLegalDocument("terms-of-service");
       setLegalDoc(doc);
-    } catch (error) {
+    } catch {
       setLegalError("The full Terms & Conditions could not be loaded right now. Please try again.");
     } finally {
       setLegalLoading(false);

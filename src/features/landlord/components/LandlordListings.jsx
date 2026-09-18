@@ -14,7 +14,18 @@ export default function LandlordListings({ listings, profile, enquiryCounts, tog
           </div>
         ) : listings.slice(0, 8).map((p) => (
           <div key={p.id} className="w-full flex items-center gap-3 p-3 rounded-2xl" style={{ background: T.paperDim }}>
-            <button type="button" onClick={() => onOpenProperty(p)} className="flex items-center gap-3 min-w-0 flex-1 text-left">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onOpenProperty(p)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onOpenProperty(p);
+                }
+              }}
+              className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
+            >
               <button
                 type="button"
                 aria-label={p.isPaused ? `Resume ${p.title}` : `Pause ${p.title}`}
@@ -44,7 +55,7 @@ export default function LandlordListings({ listings, profile, enquiryCounts, tog
               <span className="f-body px-2 py-1 rounded-full shrink-0" style={{ background: p.verification === "verified" ? "color-mix(in srgb, var(--theme-green) 12%, transparent)" : "rgba(184,132,46,.13)", color: p.verification === "verified" ? T.msasa : T.ochre, fontSize: 9.5 }}>
                 {p.verification === "verified" ? "Verified" : "Pending"}
               </span>
-            </button>
+            </div>
             <button type="button" aria-label={`Edit ${p.title}`} onClick={(event) => onEdit(event, p)} className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(58,74,58,.08)", color: T.ink }}>
               <Pencil size={15} />
             </button>

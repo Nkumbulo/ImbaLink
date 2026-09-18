@@ -1,36 +1,15 @@
-import { supabase } from '../../../../services/supabase';
-import { isObject, now, phoneKeyOrNull } from '../shared/helpers';
+import { backend } from '../../../../application/backend/index.js';
+import { isObject, now, phoneKeyOrNull, normalizeStudentProfile } from '../shared/helpers';
 import { activeUserKey, requireUser, requireCurrentUserId } from '../shared/identity';
 import { getLandlordListings } from '../../adapters/properties';
-import { idbGet, idbPut } from '../../../infrastructure/indexeddb';
+import { idbPut } from '../../../infrastructure/indexeddb';
 import { enqueue } from '../../../sync/outbox';
 
-const USER_COLUMNS = 'id, email, phone, first_name, surname, display_name, avatar_url, account_type, created_at, updated_at';
-
 async function readStudentRow(userId) {
-  const { data } = await supabase
-    .from('student_profiles')
-    .select('user_id, verification_status, details')
-    .eq('user_id', String(userId))
-    .maybeSingle();
-  return data || null;
+  const result = await backend.profileRepository.getProfile(userId).catch(() => null);
+  return result?.student || null;
 }
 
-export function normalizeStudentProfile(record) {
-  if (!isObject(record)) return null;
-  return {
-    university: String(record.university || '').trim().slice(0, 120),
-    studyYear: String(record.studyYear || '').trim().slice(0, 30),
-    preferredCity: String(record.preferredCity || '').trim().slice(0, 60),
-    preferredArea: String(record.preferredArea || '').trim().slice(0, 60),
-    budget: String(record.budget || '').trim().slice(0, 30),
-    accommodationPreference: String(record.accommodationPreference || 'Any').trim().slice(0, 40),
-    wantsRoommate: Boolean(record.wantsRoommate),
-    roommatesNeeded: String(record.roommatesNeeded || '').trim().slice(0, 20),
-    lifestyleNotes: String(record.lifestyleNotes || '').trim().slice(0, 240),
-    roommatePropertyId: record.roommatePropertyId != null ? String(record.roommatePropertyId) : '',
-  };
-}
 
 // The app models "general" as accountType null and only ever sets 'student'
 // itself; the other enum values arrive from a registration wizard.
@@ -67,11 +46,9 @@ function rowToProfile(row, studentRow = null) {
 export async function getUserProfile() {
   const userId = activeUserKey();
   if (!userId) return null;
-  const { data, error } = await supabase
-    .from('users').select(USER_COLUMNS).eq('id', userId).maybeSingle();
-  if (error || !data) return null;
-  const studentRow = data.account_type === 'student' ? await readStudentRow(userId) : null;
-  return rowToProfile(data, studentRow);
+  const result = await backend.profileRepository.getProfile(userId).catch(() => null);
+  if (!result?.user) return null;
+  return rowToProfile(result.user, result.student);
 }
 
 export async function saveUserProfile(input) {
@@ -109,22 +86,20 @@ export async function saveUserProfile(input) {
   await enqueue('profile.upsert', { entityId: userId, payload: patch, dedupeKey: `profile:${userId}` });
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return localProfile;
 
-  const { error } = await supabase.from('users').update(patch).eq('id', userId);
-  if (error) {
+  const studentPayload = isStudent
+    ? {
+        user_id: userId,
+        verification_status: input?.studentVerificationStatus ?? current?.studentVerificationStatus ?? 'unverified',
+        details: normalizeStudentProfile({ ...(current?.studentProfile || {}), ...(input?.studentProfile || {}) }) || {},
+        updated_at: new Date().toISOString(),
+      }
+    : null;
+
+  try {
+    await backend.profileRepository.updateProfile(userId, patch, studentPayload);
+  } catch (error) {
     if (typeof navigator === 'undefined' || navigator.onLine !== false) console.warn('Profile sync failed; queued for retry:', error.message);
     return localProfile;
-  }
-
-  if (isStudent) {
-    const details = { ...(current?.studentProfile || {}), ...(input?.studentProfile || {}) };
-    const status = input?.studentVerificationStatus ?? current?.studentVerificationStatus ?? 'unverified';
-    const { error: studentError } = await supabase.from('student_profiles').upsert({
-      user_id: userId,
-      verification_status: status,
-      details: normalizeStudentProfile(details) || {},
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id' });
-    if (studentError) throw studentError;
   }
 
   return getUserProfile();
@@ -158,13 +133,9 @@ export async function findProfileByPhone(phone) {
 
 export async function findProfileById(id) {
   if (!id) return null;
-  const { data, error } = await supabase
-    .from('public_user_profiles').select('*').eq('id', String(id)).maybeSingle();
-  if (error || !data) return null;
-  const studentRow = data.account_type === 'student'
-    ? (await supabase.from('public_student_profiles').select('*').eq('user_id', String(id)).maybeSingle()).data
-    : null;
-  return rowToProfile(data, studentRow);
+  const result = await backend.profileRepository.getPublicProfile(id).catch(() => null);
+  if (!result?.user) return null;
+  return rowToProfile(result.user, result.student);
 }
 
 // Public profile lookup used when a visitor taps a landlord's username/avatar.
@@ -195,16 +166,15 @@ export async function upsertProfile(profile) {
   };
   if (isStudent) row.account_type = 'student';
 
-  const { error } = await supabase.from('users').upsert(row, { onConflict: 'id' });
-  if (error) throw error;
+  const studentPayload = isStudent
+    ? {
+        user_id: userId,
+        verification_status: profile?.studentVerificationStatus || 'unverified',
+        details: normalizeStudentProfile(profile?.studentProfile) || {},
+        updated_at: new Date().toISOString(),
+      }
+    : null;
 
-  if (isStudent) {
-    await supabase.from('student_profiles').upsert({
-      user_id: userId,
-      verification_status: profile?.studentVerificationStatus || 'unverified',
-      details: normalizeStudentProfile(profile?.studentProfile) || {},
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id' });
-  }
+  await backend.profileRepository.upsertProfile(userId, row, studentPayload);
   return getUserProfile();
 }

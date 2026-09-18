@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getUniversityGeneralShareRequestStudents } from "../../core/data/domains/sharing.js";
+import { backend } from "../../application/backend/index.js";
 
 export function useFindARoommate({ university, userId }) {
   const [showFindA, setShowFindA] = useState(false);
@@ -13,7 +13,7 @@ export function useFindARoommate({ university, userId }) {
       // Find-a is intentionally broader than the compatibility recommender:
       // show every student at the selected university who has an active
       // GENERAL roommate request (property_id IS NULL), whether compatible or not.
-      const rows = await getUniversityGeneralShareRequestStudents(university, userId);
+      const rows = await backend.sharingRepository.getUniversityGeneralShareRequestStudents(university, userId);
       const shuffled = [...(Array.isArray(rows) ? rows : [])].sort(() => Math.random() - 0.5);
       setRecommendedStudents(shuffled);
     } catch (error) {

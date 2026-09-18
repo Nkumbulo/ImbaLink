@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { getUniversities } from "../../core/data/domains/students.js";
+import { backend } from "../../application/backend/index.js";
 import { isStudentAccommodation } from "../../utils/studentHelpers";
 
 let savedStudentScrollTop = 0;
@@ -16,7 +16,7 @@ export function useStudentHomes({ properties, user }) {
 
   useEffect(() => {
     let active = true;
-    getUniversities().then((rows) => {
+    backend.studentRepository.getUniversities().then((rows) => {
       if (!active) return;
       setUniversities(rows);
       if (!university && rows[0]) setUniversity(rows[0].name);

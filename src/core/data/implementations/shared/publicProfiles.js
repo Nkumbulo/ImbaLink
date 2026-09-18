@@ -1,4 +1,4 @@
-import { supabase } from '../../../../services/supabase';
+import { supabaseProfileRepository } from '../../../../infrastructure/supabase/adapters/profiles';
 import { activeUserKey } from './identity';
 
 // Public profile photos are intentionally read from the safe public view.
@@ -10,13 +10,12 @@ export async function readPublicUserProfiles(userIds) {
   if (!ids.length) return new Map();
 
   const result = new Map();
-  const { data, error } = await supabase
-    .from('public_user_profiles')
-    .select('id, avatar_url, first_name, surname, display_name, account_type')
-    .in('id', ids);
-
-  if (!error) {
+  try {
+    const data = await supabaseProfileRepository.getProfiles(ids);
     for (const row of data || []) result.set(String(row.id), row);
+  } catch {
+    // Public profile rendering is best-effort. Keep the existing fail-soft
+    // behavior so a profile lookup never blocks listings or other surfaces.
   }
 
   // Always make the currently signed-in user's Google photo available even
@@ -24,8 +23,8 @@ export async function readPublicUserProfiles(userIds) {
   // important immediately after creating a listing.
   const activeId = activeUserKey();
   if (activeId && ids.includes(String(activeId))) {
-    const { data: authData } = await supabase.auth.getUser();
-    const metadata = authData?.user?.user_metadata || {};
+    const authUser = await import('../../../../auth/supabaseAuthProvider.js').then(({ supabaseAuthProvider }) => supabaseAuthProvider.getCurrentUser());
+    const metadata = authUser?.user_metadata || {};
     const googleAvatar = metadata.avatar_url || metadata.picture || '';
     if (googleAvatar) {
       const existing = result.get(String(activeId)) || { id: String(activeId) };

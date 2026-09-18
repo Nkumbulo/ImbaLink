@@ -67,7 +67,7 @@ function AppContent() {
 
   const {
     loaded, hydrated, properties, saved, setSaved, liked, setLiked, threads, setThreads,
-    viewingRequested, setViewingRequested, landlordListings, setLandlordListings,
+    viewingRequested, setViewingRequested, setLandlordListings,
     contractors, contractorLiked, setContractorLiked, contractorRegistrations, setContractorRegistrations,
     landlordRegistration, setLandlordRegistration, proRegistration, setProRegistration,
     userProfile, setUserProfile, hasMore, setPropertySaveCount, recommendationProfile,

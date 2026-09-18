@@ -1,1 +1,1 @@
-export * from '../adapters/legalDocuments';
+export * from "../adapters/legalDocuments";

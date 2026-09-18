@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { requestViewing as requestViewingApi } from "../core/data/domains/interactions.js";
+import { backend } from "../application/backend/index.js";
 import { setPropertyLike, setPropertySave, toggleLandlordListingPause } from "../core/data/domains/properties.js";
 import { requestStudentVerification as requestStudentVerificationApi, saveUserProfile } from "../core/data/domains/profile.js";
 import { useListingUploadStatus } from "../hooks/useListingUploadStatus";
 
 /** Property/profile mutations and shell-level property navigation actions. */
 export default function useAppPropertyActions({
-  properties, saved, setSaved, liked, setLiked, viewingRequested, setViewingRequested,
+  properties, saved, setSaved, liked: _liked, setLiked, viewingRequested, setViewingRequested,
   user, userProfile, currentUserId, landlordRegistration, createLandlordListing,
   updateLandlordListing, setLandlordListings, setPropertySaveCount, setUserProfile, setTab, setDetailTab,
   setShowFilters, setShowCityPicker, setSelected, setViewingLister,
@@ -74,7 +74,7 @@ export default function useAppPropertyActions({
     const property = properties.find((item) => String(item.id) === String(propertyId));
     if (property?.isPaused) throw new Error("This listing is temporarily paused by the owner. Viewing requests are currently unavailable.");
     if (!currentUserId) throw new Error("You must be signed in to request a viewing.");
-    const result = await requestViewingApi(propertyId);
+    const result = await backend.viewingRequestRepository.requestViewing(propertyId);
     setViewingRequested((current) => ({ ...current, [String(propertyId)]: true }));
     return result || true;
   };

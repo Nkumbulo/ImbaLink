@@ -47,7 +47,7 @@ function RuleRow({ text }) {
 export default function PropertyDetailPanel({
   p, tab, setShowMap, showMap, scrollableRef, handleTabChange,
   similarProperties, contactMethods, studentMode, roommateCount, onFindRoommate,
-  onOpenLister, onOpenMessage, onOpenProperty, viewingRequested,
+  onOpenLister, onOpenMessage: _onOpenMessage, onOpenProperty, viewingRequested,
   handleBottomAction, requestingViewing, sentFlash, sendFailed,
 }) {
   return (

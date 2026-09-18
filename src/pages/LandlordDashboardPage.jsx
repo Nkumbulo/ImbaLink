@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Home, Eye, MessageCircle, ShieldCheck } from "lucide-react";
 import useMediaQuery from "../hooks/useMediaQuery";
 import { T } from "../styles/tokens";
-import { getLandlordEnquiryCounts, getLandlordViewingRequests } from "../core/data/domains/interactions.js";
+import { backend } from "../application/backend/index.js";
+
+const { getLandlordEnquiryCounts } = backend.enquiryRepository;
+const { getLandlordViewingRequests } = backend.viewingRequestRepository;
 import ListingForm from "../components/landlord/ListingForm";
 import LandlordRegistration from "../components/landlord/LandlordRegistration";
 import LandlordIdentityVerification from "../components/landlord/LandlordIdentityVerification";
@@ -14,7 +17,7 @@ import LandlordHubToast from "../features/landlord/components/LandlordHubToast";
 
 export default function LandlordDashboardPage({
   properties,
-  viewingRequested,
+  viewingRequested: _viewingRequested,
   threads,
   onCreateListing,
   onUpdateListing,

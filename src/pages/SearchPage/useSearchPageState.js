@@ -17,7 +17,7 @@ let savedSearchScrollTop = 0;
 // documented for PostCard's usePostCardInteractions.
 export function useSearchPageState({
   properties,
-  query,
+  query: _query,
   setQuery,
   filters,
   setFilters,
@@ -174,9 +174,22 @@ export function useSearchPageState({
 
   const sortedResults = useMemo(() => {
     if (randomSeed > 0 && !isAnyFilterActive && sort === "newest") {
+      // A useMemo callback must be a pure function of its declared inputs
+      // (same results/sort/randomSeed => same output), so the shuffle is
+      // seeded from randomSeed itself instead of calling Math.random()
+      // directly — the same seed now always reshuffles the same way,
+      // and a new seed (set by the "shuffle" trigger below) still looks
+      // freshly randomized to the user, same as before.
+      let state = randomSeed >>> 0 || 1;
+      const seededRandom = () => {
+        state = (state + 0x6d2b79f5) | 0;
+        let t = Math.imul(state ^ (state >>> 15), 1 | state);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
       const shuffled = [...results];
       for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(seededRandom() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       return shuffled;

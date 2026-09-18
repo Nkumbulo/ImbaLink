@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { X, CheckCircle2, ChevronRight } from "lucide-react";
 import { T } from "../../styles/tokens";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
@@ -72,7 +72,7 @@ export default function ContractorRegistration({ onClose, onSubmit, profile }) {
   const submit = async (e) => {
     e.preventDefault();
     if (!form.agreesTerms) return setError("You must confirm the registration declaration.");
-    const { confirmPassword, ...payload } = form;
+    const { confirmPassword: _confirmPassword, ...payload } = form;
     try {
       await onSubmit({
         ...payload,

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bell, X, Home, Eye, ShieldCheck, MessageCircle, CheckCheck, RotateCcw } from "lucide-react";
 import { T } from "../../styles/tokens";
 import { formatRelative } from "../../utils/formatters";
@@ -12,7 +13,14 @@ const ICON_BY_TYPE = {
 function NotificationRow({ notification, onOpen }) {
   const Icon = ICON_BY_TYPE[notification.type] || Home;
   const unread = !notification.readAt;
-  const ts = notification.createdAt ? new Date(notification.createdAt).getTime() : Date.now();
+  // Date.now() is impure to call directly during render (or inside
+  // useMemo, which still runs its callback as part of rendering) — it
+  // would produce a fresh "current time" fallback on every re-render,
+  // making the displayed "time ago" text flicker. A useState lazy
+  // initializer is the one place React's contract explicitly allows this:
+  // it runs exactly once, on this row's first mount, never again.
+  const [mountTimeFallback] = useState(() => Date.now());
+  const ts = notification.createdAt ? new Date(notification.createdAt).getTime() : mountTimeFallback;
 
   return (
     <button

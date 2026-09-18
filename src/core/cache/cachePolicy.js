@@ -1,5 +1,5 @@
 /** Stale-while-revalidate policy shared by feature caches. */
-export async function readThroughCache({ read, refresh, write, maxAge }) {
+export async function readThroughCache({ read, refresh, write, maxAge: _maxAge }) {
   const cached = await read();
   const hasValue = Boolean(cached?.hasCache);
   if (hasValue && !cached.stale) return { ...cached, source: 'cache' };
