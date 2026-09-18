@@ -21,26 +21,14 @@ import { resetContractorCache } from "../../core/data/implementations/interactio
 import { supabase } from "./client";
 import { subscribeToPropertyFeed } from "../../core/data/implementations/properties/queries";
 import { supabaseLegalDocumentRepository } from "./adapters/legalDocuments";
+import {
+  supabaseMessageRepository,
+  supabaseConversationRepository,
+} from "./adapters/messaging";
 
 const supabaseVerificationRepository = createSupabaseVerificationRepository({
   invalidatePropertyCache,
   resetContractorCache,
-});
-
-const notImplemented = (name) => async () => {
-  throw new Error(`${name} backend adapter is not wired yet.`);
-};
-
-const messageRepository = Object.freeze({
-  getConversations: notImplemented("MessageRepository.getConversations"),
-  getMessages: notImplemented("MessageRepository.getMessages"),
-  sendMessage: notImplemented("MessageRepository.sendMessage"),
-  markConversationRead: notImplemented("MessageRepository.markConversationRead"),
-});
-
-const conversationRepository = Object.freeze({
-  getConversation: notImplemented("ConversationRepository.getConversation"),
-  createConversation: notImplemented("ConversationRepository.createConversation"),
 });
 
 const storage = supabaseStorage;
@@ -98,8 +86,8 @@ export const backend = createBackend({
   quoteRepository: supabaseQuoteRepository,
   supportRepository: supabaseSupportRepository,
   verificationRepository: supabaseVerificationRepository,
-  messageRepository,
-  conversationRepository,
+  messageRepository: supabaseMessageRepository,
+  conversationRepository: supabaseConversationRepository,
   storage,
   realtime,
   functions,

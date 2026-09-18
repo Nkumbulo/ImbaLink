@@ -13,7 +13,8 @@
     "check:architecture": "node scripts/check-architecture.mjs",
     "verify": "npm run check:imports && npm run check:architecture && npm test && npm run build",
     "check:imports": "node scripts/check-imports.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "audit:backend": "node scripts/audit-backend.mjs"
   },
   "dependencies": {
     "@capacitor-community/sqlite": "^7.0.0",
